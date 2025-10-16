@@ -30,5 +30,5 @@ The system allows **admins** to manage car listings and user accounts, while **r
 
 ### 1️⃣ Clone the repository
 ```bash
-git clone https://github.com/AmroBatish/royal-cars-project.git
+git clone https://github.com/AmroBatish/Royal-Cars-Project.git
 cd royal-cars-project
