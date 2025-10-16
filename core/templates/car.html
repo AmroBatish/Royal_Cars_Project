@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} Cars | Royal Cars {% endblock %}
+{% block content %}
+
+{% if messages %}
+<div class="container mt-4">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="container-fluid page-header ">
+    <h1 class="display-3 text-uppercase text-white mb-3">Car Listing</h1>
+    <div class="d-inline-flex text-white">
+        <h6 class="text-uppercase m-0"><a class="text-white" href="{% url 'index' %}">Home</a></h6>
+        <h6 class="text-body m-0 px-3">/</h6>
+        <h6 class="text-uppercase text-body m-0">Cars</h6>
+    </div>
+</div>
+
+<div class="container py-2 col-10 mx-auto col-md-6">
+    <div class="input-group shadow-sm">
+        <span class="input-group-text bg-white border-end-0">
+            <i class="fas fa-search text-primary"></i>
+        </span>
+        <input type="text" id="searchBox" class="form-control border-start-0 px-4"
+            placeholder="Search for cars by name, year, or transmission...">
+    </div>
+</div>
+
+<div class="container-fluid py-3">
+    <div class="container pt-4 pb-2">
+        <h1 class="display-4 text-uppercase text-center mb-5">Find Your Car</h1>
+
+        <!-- أدوات التحكم -->
+        <div class="d-flex justify-content-end align-items-center py-2 flex-wrap mb-3">
+
+            <!-- Sort/Filter -->
+            <div class="input-group shadow-sm w-auto mr-3 ">
+                <span class="input-group-text bg-white">
+                    <i class="fas fa-filter text-primary"></i>
+                </span>
+                <select id="carSort" class="form-select border-start-0">
+                    <option value="">Sort/Filter</option>
+                    <option value="popular">Most Popular</option>
+                    <option value="rating">Top Rated</option>
+                    <option value="price_low">Lowest Price</option>
+                    <option value="price_high">Highest Price</option>
+                    <option value="manual">Manual</option>
+                    <option value="auto">Automatic</option>
+                    <option value="economic">Economic (≤ $50)</option>
+                </select>
+            </div>
+
+            <!-- Currency -->
+            <div class="input-group shadow-sm w-auto">
+                <span class="input-group-text bg-white">
+                    <i class="fas fa-dollar-sign text-success"></i>
+                </span>
+                <select id="currency" class="form-select border-start-0">
+                    <option value="USD" selected>USD ($)</option>
+                    <option value="EUR">EUR (€)</option>
+                    <option value="ILS">ILS (₪)</option>
+                    <option value="JOD">JOD (د.أ)</option>
+                </select>
+            </div>
+
+        </div>
+
+        <!-- نتائج السيارات -->
+        <div class="row mt-4" id="carResults">
+            {% include "car_partial.html" with cars=cars %}
+        </div>
+
+
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            // دالة تحويل العملة
+            async function applyCurrency() {
+                const currency = $("#currency").val().toUpperCase();
+                const priceElements = document.querySelectorAll(".price-display");
+                try {
+                    const response = await fetch("https://api.exchangerate-api.com/v4/latest/USD");
+                    const data = await response.json();
+                    const rate = data.rates[currency];
+                    const symbolMap = { USD: "$", EUR: "€", ILS: "₪", JOD: "د.أ" };
+                    const symbol = symbolMap[currency] || currency;
+
+                    if (!rate) {
+                        priceElements.forEach(el => {
+                            const priceUSD = parseFloat(el.dataset.price);
+                            el.innerText = "$" + priceUSD.toFixed(2) + "/Day";
+                        });
+                        return;
+                    }
+
+                    priceElements.forEach(el => {
+                        const priceUSD = parseFloat(el.dataset.price);
+                        const convertedPrice = (priceUSD * rate).toFixed(2);
+                        el.innerText = `${symbol}${convertedPrice}/Day`;
+                    });
+                } catch (error) {
+                    console.error("Currency error:", error);
+                }
+            }
+
+            // عند تغيير التصنيف
+            $("#carSort").change(function () {
+                let sort = $(this).val();
+                $.ajax({
+                    url: "{% url 'car_partial' %}",   // ✅ يطابق urls.py
+                    type: "GET",
+                    data: { sort: sort },
+                    success: function (response) {
+                        $("#carResults").html(response);
+                        applyCurrency();
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Ajax error:", status, error);
+                        alert("❌ Error loading cars. Please try again.");
+                    }
+                });
+            });
+
+            // عند تغيير العملة
+            $("#currency").change(applyCurrency);
+
+            // أول تحميل
+            applyCurrency();
+        });
+    </script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#searchBox").on("keyup", function () {
+                let query = $(this).val();
+                $.ajax({
+                    url: "{% url 'search_cars' %}",
+                    data: { q: query },
+                    success: function (data) {
+                        let results = data.results;
+                        let html = "";
+                        if (results.length > 0) {
+                            results.forEach(function (car) {
+                                html += `
+                <div class="col-lg-4 col-md-6 mb-2 car-card">
+                  <div class="rent-item mb-4 card border-0 shadow-sm h-100 text-center">
+                    ${car.image ? `<img class="img-fluid mb-4" src="${car.image}" alt="${car.name}" style="height:220px;object-fit:contain;background:#fff;">` : ""}
+                    <h4 class="text-uppercase mb-4">${car.name}</h4>
+                    <div class="d-flex justify-content-center mb-4">
+                      <div class="px-2"><i class="fa fa-car text-primary mr-1"></i><span>${car.year}</span></div>
+                      <div class="px-2 border-left border-right"><i class="fa fa-cogs text-primary mr-1"></i><span>${car.transmission}</span></div>
+                      <div class="px-2"><i class="fa fa-road text-primary mr-1"></i><span>${car.mileage}</span></div>
+                    </div>
+                    <a class="btn btn-primary px-3" href="/detail/${car.id}/">$${car.price}/Day</a>
+                  </div>
+                </div>`;
+                            });
+                        } else {
+                            html = `<div class="col-10 mx-auto rounded mt-4">
+                                <div class="alert alert-warning text-center shadow-sm d-flex align-items-center justify-content-center">
+                                    <i class="fas fa-exclamation-circle me-2 text-warning fs-5"></i> 
+                                    <span class="ml-2">  No cars found matching your search.</span>
+                                </div>
+                                </div>
+                                `;
+                        }
+                        $("#carResults").html(html);
+                    }
+                });
+            });
+        });
+    </script>
+
+    <script>
+
+        const carCardObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    // When intersecting, add the animation class
+                    entry.target.classList.add("animate__fadeInUp");
+                    // OPTIONAL: Stop observing after it has animated once
+                    // observer.unobserve(entry.target); 
+                }
+            });
+        }, {
+            // Optional: Root Margin and Threshold for better control
+            rootMargin: '0px',
+            threshold: 0.15 // 10% of the element must be visible
+        });
+
+        // Select ALL elements with the class 'rent-item'
+        const carCards = document.querySelectorAll(".rent-item");
+
+        // Loop through the NodeList and observe each one
+        carCards.forEach(card => {
+            carCardObserver.observe(card);
+        });
+    </script>
+
+    {% endblock %}

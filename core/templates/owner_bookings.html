@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h3 class="mb-3 animate__animated animate__slideInLeft"><i class="fa fa-calendar-check me-2"></i> All Reservations
+  </h3>
+  <div class="card shadow-sm">
+    <div class="card-body p-0">
+      <table class="table table-bordered align-middle text-center mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Client</th>
+            <th>Car</th>
+            <th>Location</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for booking in bookings %}
+          <tr class="text-secondary animate__animated animate__fadeInUp">
+            <td>{{ booking.user.username }}</td>
+            <td>{{ booking.car.name }}</td>
+            <td style="font-size: 12px;" class="text-dark">{{ booking.trip_location }}</td>
+            <td>{{ booking.pickup_date }}</td>
+            <td>
+              {% if booking.status == "pending" %}
+              <span class="badge bg-warning text-light">Pending</span>
+              {% elif booking.status == "approved" %}
+              <span class="badge bg-success text-light">Approved</span>
+              {% elif booking.status == "paid" %}
+              <span class="badge bg-info text-light">Paid</span>
+              {% elif booking.status == "rejected" %}
+              <span class="badge bg-danger text-light">Rejected</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if booking.status == "pending" %}
+              <div class="btn-group">
+                <a href="{% url 'approve_booking' booking.id %}" class="btn btn-sm btn-success">
+                  <i class="bi bi-check-circle"></i>
+                </a>
+                <a href="{% url 'reject_booking' booking.id %}" class="btn btn-sm btn-danger">
+                  <i class="bi bi-x-circle"></i>
+                </a>
+              </div>
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="7" class="text-center">No bookings yet</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

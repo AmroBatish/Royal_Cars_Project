@@ -1,0 +1,564 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} Dashboard {% endblock %}
+
+{% block content %}
+<!-- Stats Bar -->
+<div class="container-fluid stats-bar py-3 col-12 col-md-11 rounded-3 shadow-sm mt-1">
+  <div class="row text-center text-white justify-content-center">
+
+    <!-- إجمالي الحجوزات -->
+    <div class="col-6 col-md-2 mb-2">
+      <div class="stat-box animate__animated animate__fadeInDown">
+        <h6><i class="fa fa-list me-1"></i> Orders</h6>
+        <h5>{{ total_bookings }}</h5>
+      </div>
+    </div>
+
+    <!-- إجمالي السيارات -->
+    <div class="col-6 col-md-2 mb-2">
+      <div class="stat-box animate__animated animate__fadeInDown">
+        <h6><i class="fa fa-car me-1"></i> Cars</h6>
+        <h5>{{ total_cars }}</h5>
+      </div>
+    </div>
+
+    <!-- عدد المستخدمين -->
+    <div class="col-6 col-md-2 mb-2">
+      <div class="stat-box animate__animated animate__fadeInDown">
+        <h6><i class="fa fa-users me-1 text-info"></i> Users</h6>
+        <h5>{{ unique_customers }}</h5>
+      </div>
+    </div>
+
+    <!-- عدد الحجوزات المدفوعة -->
+    <div class="col-6 col-md-2 mb-2">
+      <div class="stat-box animate__animated animate__fadeInDown">
+        <h6><i class="fa fa-credit-card me-1 text-warning"></i> Paid</h6>
+        <h5>{{ paid }}</h5>
+      </div>
+    </div>
+
+    <!-- إجمالي المبالغ -->
+    <div class="col-6 col-md-2 mb-2">
+      <div class="stat-box animate__animated animate__fadeInDown">
+        <h6><i class="fa fa-dollar-sign me-1 text-success"></i> Payments</h6>
+        <h5>${{ total_payments|floatformat:2 }}</h5>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Form to add new car -->
+
+{% if messages %}
+<div class="container mt-4 col-10 col-md-8">
+  {% for message in messages %}
+  <div class="alert alert-{{ message.tags }} alert-dismissible fade show d-flex align-items-center" role="alert">
+    {% if message.tags == "success" %}
+    <i class="bi bi-check-circle-fill me-2"></i>
+    {% elif message.tags == "error" or message.tags == "danger" %}
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    {% elif message.tags == "warning" %}
+    <i class="bi bi-exclamation-circle-fill me-2"></i>
+    {% elif message.tags == "info" %}
+    <i class="bi bi-info-circle-fill me-2"></i>
+    {% endif %}
+    <div class="ml-2">{{ message }}</div>
+    <button type="button" class="close ms-auto" data-dismiss="alert" aria-label="Close">&times;</button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- Add Modal -->
+<div class="modal fade animate__animated animate__fadeInDown" id="addCarModal" tabindex="-1"
+  aria-labelledby="addCarModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-3">
+
+      <!-- Header -->
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title fw-bold" id="addCarModalLabel">
+          <i class="fas fa-car-side me-2"></i> Add New Car
+        </h5>
+        <button type="button" class="btn btn-sm btn-outline-light border-0" data-bs-dismiss="modal" aria-label="Close">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="modal-body">
+        <form method="post" enctype="multipart/form-data" action="{% url 'add_car' %}">
+          {% csrf_token %}
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label><i class="fas fa-tag text-primary me-1"></i> Name</label>
+              <input type="text" name="name" class="form-control" required>
+            </div>
+            <div class="col-md-3 mb-3">
+              <label><i class="fas fa-calendar-alt text-primary me-1"></i> Year</label>
+              <input type="number" name="year" class="form-control" required>
+            </div>
+            <div class="col-md-3 mb-3">
+              <label><i class="fas fa-cogs text-primary me-1"></i> Transmission</label>
+              <select name="transmission" class="form-control" required>
+                <option value="AUTO">Automatic</option>
+                <option value="MANUAL">Manual</option>
+              </select>
+            </div>
+            <div class="col-md-4 mb-3">
+              <label><i class="fas fa-tachometer-alt text-primary me-1"></i> Mileage</label>
+              <input type="text" name="mileage" class="form-control">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label><i class="fas fa-dollar-sign text-primary me-1"></i> Price / Day ($)</label>
+              <input type="number" step="0.01" name="price" class="form-control" required>
+            </div>
+            <div class="col-md-4 mb-3">
+              <label><i class="fas fa-image text-primary me-1"></i> Image</label>
+              <input type="file" name="image" class="form-control">
+            </div>
+            <div class="col-12 mb-3">
+              <label><i class="fas fa-align-left text-primary me-1"></i> Description</label>
+              <textarea name="description" class="form-control"></textarea>
+            </div>
+          </div>
+          <div class="d-flex justify-content-end">
+            <button type="submit" class="btn btn-outline-dark">
+              <i class="fas fa-plus me-1"></i> Add Car
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+{% for car in cars %}
+<!-- مودال التعديل -->
+<div class="modal fade" id="editCarModal{{ car.id }}" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-3">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title fw-bold"><i class="fas fa-edit me-2"></i> Edit Car</h5>
+        <button type="button" class="btn btn-sm btn-outline-dark border-0" data-bs-dismiss="modal">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <form method="post" enctype="multipart/form-data" action="{% url 'edit_car' car.id %}">
+        {% csrf_token %}
+        <div class="modal-body">
+          <!-- نفس الحقول تبع إضافة السيارة لكن مع قيم مسبقة -->
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label><i class="fas fa-tag text-primary me-1"></i> Name</label>
+              <input type="text" name="name" value="{{ car.name }}" class="form-control" required>
+            </div>
+            <div class="col-md-3 mb-3">
+              <label><i class="fas fa-calendar-alt text-primary me-1"></i> Year</label>
+              <input type="number" name="year" value="{{ car.year }}" class="form-control" required>
+            </div>
+            <div class="col-md-3 mb-3">
+              <label><i class="fas fa-cogs text-primary me-1"></i> Transmission</label>
+              <select name="transmission" class="form-control" required>
+                <option value="AUTO" {% if car.transmission == "AUTO" %}selected{% endif %}>Automatic</option>
+                <option value="MANUAL" {% if car.transmission == "MANUAL" %}selected{% endif %}>Manual</option>
+              </select>
+            </div>
+            <div class="col-md-4 mb-3">
+              <label><i class="fas fa-tachometer-alt text-primary me-1"></i> Mileage</label>
+              <input type="text" name="mileage" value="{{ car.mileage }}" class="form-control">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label><i class="fas fa-dollar-sign text-primary me-1"></i> Price / Day ($)</label>
+              <input type="number" step="0.01" name="price" value="{{ car.price }}" class="form-control" required>
+            </div>
+            <div class="col-md-4 mb-3">
+              <label><i class="fas fa-image text-primary me-1"></i> Image</label>
+              <input type="file" name="image" class="form-control">
+              {% if car.image %}
+              <small class="text-muted">Current: {{ car.image.name }}</small>
+              {% endif %}
+            </div>
+            <div class="col-12 mb-3">
+              <label><i class="fas fa-align-left text-primary me-1"></i> Description</label>
+              <textarea name="description" class="form-control">{{ car.description }}</textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="fas fa-times me-1"></i> Cancel
+          </button>
+          <button type="submit" class="btn btn-warning">
+            <i class="fas fa-save me-1"></i> Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- مودال الحذف -->
+<div class="modal fade" id="deleteCarModal{{ car.id }}" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-3">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title fw-bold"><i class="fas fa-trash-alt me-2"></i> Delete Car</h5>
+        <button type="button" class="btn btn-sm btn-outline-light border-0" data-bs-dismiss="modal">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body text-center">
+        <i class="fas fa-exclamation-triangle fa-3x text-danger mb-3"></i>
+        <p class="fw-bold">Are you sure you want to delete <span class="text-danger">"{{ car.name }}"</span>?</p>
+        <p class="text-muted small">This action cannot be undone.</p>
+      </div>
+      <div class="modal-footer justify-content-center">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-1"></i> Cancel
+        </button>
+        <form method="post" action="{% url 'delete_car' car.id %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">
+            <i class="fas fa-trash-alt me-1"></i> Delete
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+
+
+<div class="container-fluid  py-3 col-12 col-md-11 rounded-3  mt-4">
+
+  <div class="d-flex justify-content-end align items-center col-12  ">
+    <button class="btn btn-primary mb-1" data-bs-toggle="modal" data-bs-target="#addCarModal">
+      <i class="fas fa-plus me-1"></i> Add Car
+    </button>
+  </div>
+<div class="row mt-4 justify-content-between">
+  <!-- Top Active Customers -->
+  <div class="col-md-6">
+    <div class="card shadow-sm border-0 h-100">
+      <div class="card-header bg-light text-dark fw-bold">
+        <i class="fas fa-users me-2"></i> Top Active Customers
+      </div>
+      <div class="card-body">
+        <div class="row">
+          {% for customer in top_customers %}
+          <div class="col-md-6 mb-3">
+            <div class="card h-100 border-0 shadow-sm">
+              <div class="card-body text-center">
+                <i class="fas fa-user-circle fa-2x text-primary mb-2"></i>
+                <h6 class="fw-bold mb-1">{{ customer.user__username }}</h6>
+                <span class="badge bg-dark text-white" style="font-size: 12px;">
+                  <i class="fas fa-book me-1"></i> {{ customer.total_bookings }} Bookings
+                </span>
+              </div>
+            </div>
+          </div>
+          {% empty %}
+          <div class="col-12 text-center text-muted">No active customers yet</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Requested Cars -->
+  <div class="col-md-6">
+    <div class="card shadow-sm border-0 h-100">
+      <div class="card-header bg-light text-dark fw-bold">
+        <i class="fas fa-car-side me-2"></i> Top Requested Cars
+      </div>
+      <div class="card-body">
+        <div class="row">
+          {% for car in top_cars %}
+          <div class="col-md-6 mb-3">
+            <div class="card h-100 border-0 shadow-sm">
+              <div class="card-body text-center">
+                <i class="fas fa-car fa-2x text-dark mb-2"></i>
+                <h6 class="fw-bold mb-1">{{ car.car__name }}</h6>
+                <span class="badge bg-light text-dark" style="font-size: 12px;">
+                  <i class="fas fa-book me-1"></i> {{ car.total_bookings }} Bookings
+                </span>
+              </div>
+            </div>
+          </div>
+          {% empty %}
+          <div class="col-12 text-center text-muted">No cars booked yet</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- Row 1: Cars + Bookings -->
+  <div class="row mt-2 p-2">
+    <!-- Cars -->
+    <div class="col-12 col-md-6 mb-4">
+  <div class="card shadow-sm">
+    <div class="card-header fw-bold">
+      <i class="fa fa-car me-2"></i> My Cars
+    </div>
+    <div class="card-body p-0">
+      <table class="table table-bordered align-middle text-center mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Car</th>
+            <th>Year</th>
+            <th>Transmission</th>
+            <th>Mileage</th>
+            <th>Price</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for car in cars %}
+          <tr class="text-dark">
+            <td class="text-primary">{{ car.name }}</td>
+            <td>{{ car.year }}</td>
+            <td>{{ car.transmission }}</td>
+            <td>{{ car.mileage }}</td>
+            <td>${{ car.price }}</td>
+            <td>
+              <div class="d-flex justify-content-between gap-2 mt-3">
+                <!-- زر تعديل -->
+                <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal"
+                  data-bs-target="#editCarModal{{ car.id }}">
+                  <i class="fas fa-edit me-1"></i>
+                </button>
+
+                <!-- زر حذف -->
+                <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal"
+                  data-bs-target="#deleteCarModal{{ car.id }}">
+                  <i class="fas fa-trash-alt me-1"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" class="text-center">No cars added yet</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- زر Show All -->
+    <div class="card-footer text-end d-flex justify-content-end px-2 py-3">
+      <a href="{% url 'owner_cars' request.user.id %}" class="btn btn-sm btn-outline-dark">
+  <i class="fas fa-car me-1"></i> Show All
+</a>
+    </div>
+  </div>
+</div>
+
+    <!-- Bookings -->
+    <div class="col-12 col-md-6 mb-4">
+  <div class="card shadow-sm">
+    <div class="card-header fw-bold">
+      <i class="fa fa-calendar-check me-2"></i> Reservations
+    </div>
+    <div class="card-body p-0">
+      <table class="table table-bordered align-middle text-center mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Client</th>
+            <th>Car</th>
+            <th>Pickup</th>
+            <th>Drop</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for booking in bookings %}
+          <tr class="text-secondary">
+            <td>{{ booking.user.username }}</td>
+            <td>{{ booking.car.name }}</td>
+            <td>{{ booking.pickup_location }}</td>
+            <td>{{ booking.drop_location }}</td>
+            <td>{{ booking.pickup_date }}</td>
+            <td>
+              {% if booking.status == "pending" %}
+              <span class="badge bg-warning text-light" style="font-size: 12px;">Pending</span>
+              {% elif booking.status == "approved" %}
+              <span class="badge bg-success text-light" style="font-size: 12px;">Approved</span>
+              {% elif booking.status == "paid" %}
+              <span class="badge bg-info text-light" style="font-size: 12px;">Paid</span>
+              {% elif booking.status == "rejected" %}
+              <span class="badge bg-danger text-light" style="font-size: 12px;">Rejected</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if booking.status == "pending" %}
+              <div class="btn-group">
+                <a href="{% url 'approve_booking' booking.id %}" class="btn btn-sm btn-success">
+                  <i class="bi bi-check-circle"></i>
+                </a>
+                <a href="{% url 'reject_booking' booking.id %}" class="btn btn-sm btn-danger">
+                  <i class="bi bi-x-circle"></i>
+                </a>
+              </div>
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="7" class="text-center">No bookings yet</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- زر Show All -->
+    <div class="card-footer text-end d-flex justify-content-end px-2 py-3">
+      <a href="{% url 'owner_bookings' request.user.id %}" class="btn btn-sm btn-outline-dark">
+        <i class="fas fa-calendar-check me-1"></i> Show All
+      </a>
+    </div>
+  </div>
+</div>
+  </div>
+
+  <!-- Row 2: Ratings + Reviews -->
+  <div class="row">
+    <!-- Ratings Summary -->
+    <div class="col-12 col-md-6 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-header fw-bold">
+          <i class="fa fa-star text-warning me-2"></i> Cars Ratings Summary
+        </div>
+        <div class="card-body p-0">
+          <table class="table table-bordered text-center mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Car</th>
+                <th>Average Rating</th>
+                <th>Total Reviews</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for car in cars_with_stats %}
+              <tr>
+                <td>{{ car.name }} ({{ car.year }})</td>
+                <td>
+                  {% if car.avg_rating %}
+                  ⭐ {{ car.avg_rating|floatformat:1 }}/5
+                  {% else %}
+                  No ratings yet
+                  {% endif %}
+                </td>
+                <td>{{ car.total_reviews }}</td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="3">No cars found.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Latest Reviews -->
+    <div class="col-12 col-md-6 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-header fw-bold">
+          <i class="fa fa-comments me-2"></i> Latest Reviews
+        </div>
+        <div class="card-body">
+          {% if recent_reviews %}
+          {% for review in recent_reviews %}
+          <div class="mb-3 border-bottom pb-2">
+            <strong>⭐ {{ review.rating }}/5</strong>
+            <p class="mb-1">{{ review.comment|default:"No comment" }}</p>
+            <small class="text-muted">
+              Car: {{ review.booking.car.name }} | By {{ review.user.username }} on {{ review.created_at|date:"Y-m-d" }}
+            </small>
+          </div>
+          {% endfor %}
+          {% else %}
+          <p class="text-muted">No reviews yet.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  $(document).ready(function () {
+    // Approve
+    $(".approve-btn").click(function () {
+      let bookingId = $(this).data("id");
+
+      $.ajax({
+        url: "/booking/" + bookingId + "/approve/",
+        type: "POST",
+        data: {
+          csrfmiddlewaretoken: "{{ csrf_token }}"
+        },
+        success: function (response) {
+          updateStatus(bookingId, response.status);
+          $("button[data-id='" + bookingId + "']").remove();
+        },
+        error: function () {
+          alert("❌ Error approving booking!");
+        }
+      });
+    });
+
+    // Reject
+    $(".reject-btn").click(function () {
+      let bookingId = $(this).data("id");
+
+      $.ajax({
+        url: "/booking/" + bookingId + "/reject/",
+        type: "POST",
+        data: {
+          csrfmiddlewaretoken: "{{ csrf_token }}"
+        },
+        success: function (response) {
+          updateStatus(bookingId, response.status);
+          $("button[data-id='" + bookingId + "']").remove();
+        },
+        error: function () {
+          alert("❌ Error rejecting booking!");
+        }
+      });
+    });
+
+    // دالة تحديث الحالة حسب الاستجابة
+    function updateStatus(bookingId, status) {
+      let statusHtml = "";
+      if (status === "pending") {
+        statusHtml = '<span class="badge bg-warning" style="font-size: 12px;">Pending</span>';
+      } else if (status === "approved") {
+        statusHtml = '<span class="badge bg-success" style="font-size: 12px;">Approved</span>';
+      } else if (status === "paid") {
+        statusHtml = '<span class="badge bg-info text-light" style="font-size: 12px;">Paid</span>';
+      } else if (status === "rejected") {
+        statusHtml = '<span class="badge bg-danger text-light" style="font-size: 12px;">Rejected</span>';
+      } else {
+        statusHtml = '<span class="badge bg-secondary" style="font-size: 12px;">Unknown</span>';
+      }
+      $("#status-" + bookingId).html(statusHtml);
+    }
+  });
+</script>
+
+{% endblock %}

@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} Profile {% endblock %}
+
+{% block content %}
+
+{% if messages %}
+<div class="container mt-4">
+  {% for message in messages %}
+  <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">{{ message }}
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+<!-- Profile Section -->
+<div class="container py-5">
+  <div class="row">
+    <!-- Left Column: User Profile -->
+    <div class="col-lg-4 col-md-5 mb-4">
+      <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+        <!-- Header -->
+        <div class="card-header text-center py-4" style="background: linear-gradient(90deg, #ff7a00, #ff9900);">
+          <h3 class="mb-0 text-white fw-bold">
+            <i class="fa fa-user-circle me-2"></i> My Profile
+          </h3>
+        </div>
+        <!-- Body -->
+        <div class="card-body bg-light p-4 text-center">
+          <img src="{% static 'img/userProfile.png' %}" class="rounded-circle mb-3" width="100">
+          <h5 class="card-title">{{ user.username }}</h5>
+
+
+
+          <ul class="list-group list-group-flush mt-3 rounded-3 overflow-hidden">
+
+            <li class="list-group-item py-3 d-flex align-items-center mb-2 animate__animated animate__slideInLeft">
+              <i class="fa fa-envelope text-primary mr-1"></i>
+              <span><strong> Email:</strong> {{ user.email }}</span>
+            </li>
+            <li class="list-group-item py-3 d-flex align-items-center mb-2 animate__animated animate__slideInLeft">
+              <i class="fa fa-phone text-primary mr-1"></i>
+              <span><strong> Phone:</strong> {{ user.phone|default:"—" }}</span>
+            </li>
+            <li class="list-group-item py-3 d-flex align-items-center mb-2 animate__animated animate__slideInLeft">
+              <i class="fa fa-id-badge text-primary mr-1"></i>
+              <span><strong> Role: </strong> {{ user.role }}</span>
+            </li>
+            <li class="list-group-item py-1 d-flex justify-content-center align-items-center mb-2 animate__animated animate__slideInLeft">
+              {% if user.license_image %}
+              <img src="{{ user.license_image.url }}" class="rounded-2 " width="200" alt="License Image">
+              {% else %}
+              <i class="fa fa-id-card text-primary mr-1"></i>
+              <span><strong> License:</strong> Not uploaded</span>
+              {% endif %}
+
+
+            </li>
+          </ul>
+
+          <!-- Buttons -->
+          <div class="mt-4">
+            <a href="#" class="btn btn-outline-dark btn-sm px-4 ">
+              <i class="fa fa-phone mr-1"></i> Contact
+            </a>
+            <!-- Example logout button -->
+            <!-- <a href="{% url 'logout' %}" class="btn btn-danger btn-sm px-4">
+              <i class="fa fa-sign-out-alt me-1"></i> Logout
+            </a> -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Activities -->
+    <div class="col-lg-8 col-md-7">
+      <!-- Recent Bookings -->
+      <div class="card shadow-sm mb-3 rounded-4">
+        <div class="card-header fw-bold">
+          <i class="fa fa-calendar-check me-2 text-primary"></i> Recent Bookings
+        </div>
+        <ul class="list-group list-group-flush">
+          {% for booking in recent_bookings %}
+          <li class="list-group-item animate__animated animate__slideInUp">
+            <i class="fa-solid fa-check"></i>
+            {{ booking.car }} – {{ booking.pickup_date }} → {{ booking.return_date }}
+          </li>
+          {% empty %}
+          <li class="list-group-item text-muted">No recent bookings</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <!-- Recent Contracts -->
+      <div class="card shadow-sm rounded-4">
+        <div class="card-header fw-bold">
+          <i class="fa fa-file-contract me-2 text-warning"></i> Recent Contracts
+        </div>
+        <ul class="list-group list-group-flush animate__animated animate__slideInUp">
+          {% for contract in recent_contracts %}
+          <li class="list-group-item">
+            <i class="fa fa-file-signature text-secondary me-2"></i>
+            Contract #{{ contract.id }} – {{ contract.created_at|date:"d M Y" }}
+            <span class="badge bg-light float-end">
+              <i class="fa fa-dollar-sign me-1"></i> {{ contract.total_price }}
+            </span>
+          </li>
+          {% empty %}
+          <li class="list-group-item text-muted">No recent contracts</li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div class="card mt-4">
+        <div class="card-header fw-bold">Booking Summary</div>
+        <div class="card-body">
+          <table class="table table-bordered text-center">
+            <thead class="table-light">
+              <tr>
+                <th> Completed Bookings </th>
+                <th>Total Paid (USD)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{{ total_bookings|default:"0" }}</td>
+                <td>{{ total_paid|default:"0.00" }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

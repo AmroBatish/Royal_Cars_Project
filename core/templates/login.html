@@ -1,0 +1,281 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Log in</title>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta content="Free HTML Templates" name="keywords">
+  <meta content="Free HTML Templates" name="description">
+
+  <!-- Favicon -->
+  <link href="{% static 'img/favicon.ico' %}" rel="icon">
+
+  <!-- Google Web Fonts -->
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Rubik&display=swap"
+    rel="stylesheet">
+
+
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <!-- Libraries Stylesheet -->
+  <link href="{% static 'lib/owlcarousel/assets/owl.carousel.min.css' %}" rel="stylesheet">
+  <link href="{% static 'lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css' %}" rel="stylesheet" />
+
+  <!-- Customized Bootstrap Stylesheet -->
+  <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+
+  <!-- Template Stylesheet -->
+  <link href="{% static 'css/style.css' %}" rel="stylesheet">
+  <style>
+    body {
+      background: #f8f9fa;
+    }
+
+    .login-card {
+      max-width: 420px;
+      margin: 80px auto;
+      padding: 30px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .login-card h3 {
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    .fade-in {
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.96);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Topbar Start -->
+  <div class="container-fluid bg-dark py-3 px-lg-5 d-none d-lg-block">
+    <div class="row">
+      <div class="col-md-6 text-center text-lg-left mb-2 mb-lg-0">
+        <div class="d-inline-flex align-items-center">
+          <a class="text-body pr-3" href=""><i class="fa fa-phone-alt mr-2"></i>+012 345 6789</a>
+          <span class="text-body">|</span>
+          <a class="text-body px-3" href=""><i class="fa fa-envelope mr-2"></i>info@example.com</a>
+        </div>
+      </div>
+      <div class="col-md-6 text-center text-lg-right">
+        <div class="d-inline-flex align-items-center">
+          <a class="text-body px-3" href=""><i class="fab fa-facebook-f"></i></a>
+          <a class="text-body px-3" href=""><i class="fab fa-twitter"></i></a>
+          <a class="text-body px-3" href=""><i class="fab fa-linkedin-in"></i></a>
+          <a class="text-body px-3" href=""><i class="fab fa-instagram"></i></a>
+          <a class="text-body pl-3" href=""><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Topbar End -->
+
+
+  <!-- Navbar Start -->
+  <div class="container-fluid position-relative nav-bar p-0">
+    <div class="position-relative px-lg-5" style="z-index: 9;">
+      <nav class="navbar navbar-expand-lg bg-secondary navbar-dark py-3 py-lg-0 pl-3 pl-lg-5">
+        <a href="/" class="navbar-brand logo-shine-effect">
+          <h1 class="text-uppercase text-primary mb-1">Royal Cars</h1>
+        </a>
+        <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse justify-content-between px-3" id="navbarCollapse">
+          <div class="navbar-nav ml-auto py-0">
+            <!-- <a href="{% url 'index' %}" class="nav-item nav-link">Home</a> -->
+            <a href="{% url 'about' %}" class="nav-item nav-link">About</a>
+            <a href="{% url 'service' %}" class="nav-item nav-link">Service</a>
+            <a href="{% url 'car' %}" class="nav-item nav-link">Cars</a>
+            <a href="{% url 'contact' %}" class="nav-item nav-link">Contact</a>
+
+            {% if user.is_authenticated %}
+            {% if user.role == "owner" %}
+            <a href="{% url 'owner_dashboard' %}" class="nav-item nav-link">Dashboard</a>
+            {% else %}
+            <a href="{% url 'my_bookings' %}" class="nav-item nav-link">My Bookings</a>
+            <a href="{% url 'profile' %}" class="nav-item nav-link">Profile</a>
+            {% endif %}
+            <a href="{% url 'logout' %}" class="nav-item nav-link">Logout</a>
+            {% else %}
+
+            <a href="{% url 'register' %}" class="nav-item nav-link">Register</a>
+            <a href="{% url 'register_owner' %}" class="nav-item nav-link">Register as Owner</a>
+            {% endif %}
+          </div>
+        </div>
+      </nav>
+    </div>
+  </div>
+  <!-- Navbar End -->
+
+  <div class="login-card shadow-lg ">
+    <h3 class="text-center text-primary">Login</h3>
+
+    {% if messages %}
+    <div class="container mt-4">
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">{{ message }}
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+
+
+    <div class="logo-wrapper">
+      <img src="{% static 'img/logo.png' %}" alt="logo" class="logo mb-2 d-block mx-auto rounded-circle"
+        style="width: 75px; height: 75px;">
+
+      <div class="shine"></div>
+    </div>
+    <form method="POST">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label for="username" class="form-label">Username</label>
+        <input type="text" id="username" name="username" class="form-control" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" id="password" name="password" class="form-control" required>
+      </div>
+
+      <button type="submit" id="login" class="btn btn-primary w-100">Login</button>
+    </form>
+
+    <p class="mt-3 text-center">
+      Don’t have an account?
+      <a href="/register/">Register</a>
+    </p>
+
+    {% if trigger_verification %}
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        startVerification();
+      });
+    </script>
+    {% endif %}
+
+    <!-- Verification Modal -->
+<div class="modal fade" id="verificationModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+
+    <div class="modal-content p-4 text-center rounded fade-in">
+      <h5 class="modal-title mb-3">
+        <i class="fa-solid fa-shield-halved me-2"></i> Verification Process
+      </h5>
+
+      <div id="verificationSteps">
+        <!-- Step 1 -->
+        <div id="step1" class="mb-4">
+          <div class="spinner-border text-success" role="status"></div>
+          <p class="mt-2 text-muted">
+            <i class="fa-solid fa-id-card-clip me-2"></i> License Verification...
+          </p>
+        </div>
+
+        <!-- Step 2 -->
+        <div id="step2" class="mb-4 d-none">
+          <div class="spinner-border text-info" role="status"></div>
+          <p class="mt-2 text-muted">
+            <i class="fa-solid fa-user-check me-2"></i> Matching personal data...
+          </p>
+        </div>
+
+        <!-- Step 3: Verification Successful -->
+        <div id="finalResult" class="d-none">
+          <div class="text-success fade-in">
+            <i class="fa-solid fa-circle-check fa-2x"></i>
+            <p class="mt-2"> Verification Successful!</p>
+          </div>
+        </div>
+
+        <!-- Step 4: Welcome Message -->
+        <div id="welcomeMessage" class="d-none">
+          <div class="text-primary fade-in">
+            
+            <p class="fw-bold mt-2"><i class="fa-regular fa-hand text-primary"></i>  Welcome back, {{ user.username }}!</p>
+            <p class="text-muted">Redirecting to your dashboard...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+    <script>
+  function startVerification() {
+    const modal = new bootstrap.Modal(document.getElementById('verificationModal'));
+    modal.show();
+
+    // Step 1 → Step 2
+    setTimeout(() => {
+      document.getElementById("step1").classList.add("d-none");
+      document.getElementById("step2").classList.remove("d-none");
+
+      // Step 2 → Step 3
+      setTimeout(() => {
+        document.getElementById("step2").classList.add("d-none");
+        document.getElementById("finalResult").classList.remove("d-none");
+
+        // Step 3 → Step 4 (Welcome Message)
+        setTimeout(() => {
+          document.getElementById("finalResult").classList.add("d-none");
+          document.getElementById("welcomeMessage").classList.remove("d-none");
+
+          // Redirect بعد الترحيب
+          setTimeout(() => {
+            window.location.href = "{% url 'index' %}";
+          }, 700);
+
+        }, 1300);
+
+      }, 1400);
+
+    }, 2500);
+  }
+</script>
+
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script src="{% static 'lib/easing/easing.min.js' %}"></script>
+  <script src="{% static 'lib/waypoints/waypoints.min.js' %}"></script>
+  <script src="{% static 'lib/owlcarousel/owl.carousel.min.js' %}"></script>
+  <script src="{% static 'lib/tempusdominus/js/moment.min.js' %}"></script>
+  <script src="{% static 'lib/tempusdominus/js/moment-timezone.min.js' %}"></script>
+  <script src="{% static 'lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js' %}"></script>
+
+  <!-- Template Javascript -->
+  <script src="{% static 'js/main.js' %}"></script>
+</body>
+
+</html>

@@ -1,0 +1,408 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Car Detail{% endblock %}
+
+{% block content %}
+
+<!-- رسائل التنبيه -->
+{% if messages %}
+<div class="container mt-4">
+  {% for message in messages %}
+  <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- Header -->
+<div class="container-fluid page-header py-3 bg-dark text-white">
+  <div class="d-inline-flex align-items-center">
+    <h6 class="text-uppercase m-0"><a class="text-white" href="{% url 'index' %}">Home</a></h6>
+    <h6 class="text-body m-0 px-3">/</h6>
+    <h6 class="text-uppercase text-body m-0">{{ car.name }}</h6>
+  </div>
+</div>
+
+<!-- تفاصيل السيارة -->
+<div class="container py-4">
+  <div class="row">
+    <!-- صورة ومواصفات السيارة -->
+    <div class="col-lg-7 mb-4">
+      <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+        {% if car.image %}
+        <img src="{{ car.image.url }}" class="card-img-top img-fluid" alt="{{ car.name }}"
+          style="object-fit: contain; height: 350px;">
+        {% endif %}
+        <div class="card-body bg-light">
+          <h2 class="card-title fw-bold text-primary mb-3">{{ car.name }}</h2>
+          <p class="card-text text-muted">{{ car.description }}</p>
+          <hr class="my-4">
+          <div class="row text-center">
+            <div class="col-6 col-md-3 mb-3">
+              <i class="fa fa-calendar-alt text-primary fs-4 mb-1"></i>
+              <h6 class="text-secondary mb-0">Year</h6>
+              <span class="fw-bold">{{ car.year }}</span>
+            </div>
+            <div class="col-6 col-md-3 mb-3">
+              <i class="fa fa-cogs text-primary fs-4 mb-1"></i>
+              <h6 class="text-secondary mb-0">Gear</h6>
+              <span class="fw-bold">{{ car.transmission }}</span>
+            </div>
+            <div class="col-6 col-md-3 mb-3">
+              <i class="fa fa-road text-primary fs-4 mb-1"></i>
+              <h6 class="text-secondary mb-0">Mileage</h6>
+              <span class="fw-bold">{{ car.mileage }}</span>
+            </div>
+            <div class="col-6 col-md-3 mb-3">
+              <i class="fa fa-dollar-sign text-primary fs-4 mb-1"></i>
+              <h6 class="text-secondary mb-0">Price</h6>
+              <span class="fw-bold" id="price-display">${{ car.price }}/Day</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- معلومات صاحب السيارة -->
+    <div class="col-lg-5 mb-4">
+      <h3 class="mb-3"><i class="bi bi-person-badge me-2"></i>Car Owner Info</h3>
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <p><i class="bi bi-person text-primary me-2"></i><strong>Owner:</strong> {{ car.owner.username }}</p>
+          <p><i class="bi bi-envelope text-primary me-2"></i><strong>Email:</strong> {{ car.owner.email }}</p>
+          <p><i class="bi bi-telephone text-primary me-2"></i><strong>Phone:</strong> {{ car.owner.phone }}</p>
+          <p><i class="bi bi-building text-primary me-2"></i><strong>Company:</strong>
+            <a href="{% url 'owner_cars' car.owner.id %}" class="text-decoration-none">{{ car.owner.company_name }}</a>
+          </p>
+        </div>
+      </div>
+
+      <!-- التقييمات -->
+      <div class="card mt-4">
+        <div class="card-header fw-bold"><i class="fa fa-star text-warning me-2"></i>Reviews ({{ total_reviews }})</div>
+        <div class="card-body">
+          {% if reviews %}
+          <p><strong>Average Rating:</strong> ⭐ {{ avg_rating|floatformat:1 }}/5</p>
+          <hr>
+          {% for review in reviews %}
+          <div class="mb-3 border-bottom pb-2">
+            <strong>⭐ {{ review.rating }}/5</strong>
+            <p class="mb-1">{{ review.comment|default:"No comment" }}</p>
+            <small class="text-muted">By {{ review.user.username }} on {{ review.created_at|date:"Y-m-d" }}</small>
+          </div>
+          {% endfor %}
+          {% else %}
+          <p class="text-muted">No reviews yet for this car.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- نموذج الحجز -->
+    <div class="col-lg-12 mb-5">
+      <div class="bg-dark p-4 rounded shadow text-white">
+        <h3 class="text-primary text-center mb-4"><i class="fas fa-calendar-check me-2"></i>Book This Car</h3>
+
+        {% if user.is_authenticated and user.role != "owner" %}
+        <div class="row">
+          <div class="col-md-6">
+            <form id="bookingForm" method="post" action="{% url 'booking' %}">
+              {% csrf_token %}
+              <input type="hidden" name="car" value="{{ car.id }}">
+              <input type="hidden" id="carPrice" value="{{ car.price }}">
+
+              <!-- اختيار الموقع -->
+              <div class="mb-3">
+                <label class="form-label">Pickup & Drop Location</label>
+                <input type="text" id="trip_location" name="trip_location" class="form-control"
+                  placeholder="Click button to select locations" readonly required>
+                <button type="button" class="btn btn-outline-primary mt-2 w-100" data-bs-toggle="modal"
+                  data-bs-target="#mapModal">
+                  Select on Map
+                </button>
+              </div>
+
+              <!-- hidden inputs للإحداثيات والمسافة -->
+              <input type="hidden" name="pickup_lat" id="pickup_lat">
+              <input type="hidden" name="pickup_lng" id="pickup_lng">
+              <input type="hidden" name="dropoff_lat" id="dropoff_lat">
+              <input type="hidden" name="dropoff_lng" id="dropoff_lng">
+              <input type="hidden" name="trip_distance" id="trip_distance">
+
+              <div class="mb-3">
+                <label class="form-label">Pickup Date</label>
+                <input type="date" class="form-control" id="pickup_date" name="pickup_date" required>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Pickup Time</label>
+                <input type="time" class="form-control" name="pickup_time" required>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Return Date</label>
+                <input type="date" class="form-control" id="return_date" name="return_date" required>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Special Request</label>
+                <textarea class="form-control" name="special_request" rows="3" placeholder="Optional"></textarea>
+              </div>
+
+              <button class="btn btn-primary w-100" type="submit">Reserve Now</button>
+            </form>
+          </div>
+
+          <!-- Booking Summary -->
+          <div class="col-md-5 offset-md-1">
+            <div class="card shadow-sm text-dark">
+              <div class="card-header bg-primary text-white fw-bold">Booking Summary</div>
+              <div class="card-body">
+                <p><strong>Trip:</strong> <span id="tripRoute" class="text-primary">—</span></p>
+                <p><strong>Duration:</strong> <span id="daysCount">0</span> days</p>
+                <p><strong>Total Price (USD):</strong> $<span id="totalPrice">0</span></p>
+                <hr>
+                <p><strong>ILS (₪):</strong> <span id="priceILS">0</span></p>
+                <p><strong>EUR (€):</strong> <span id="priceEUR">0</span></p>
+                <p><strong>JOD (د.أ):</strong> <span id="priceJOD">0</span></p>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% elif user.role == "owner" %}
+        <div class="alert alert-warning text-center">Owners cannot make bookings.</div>
+        {% else %}
+        <div class="alert alert-warning text-center">You must be logged in to book this car.</div>
+        <a href="{% url 'login' %}" class="btn btn-outline-primary d-block w-25 mx-auto mt-2">Login to Book</a>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- 🌍 Modal -->
+    <div class="modal fade" id="mapModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content rounded-4 shadow-lg">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold">Select Pickup & Drop Locations</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <p class="text-muted small mb-2">Click once for <b>Pickup</b> and again for <b>Drop</b>.</p>
+            <div id="map" style="height: 450px; border-radius: 10px;"></div>
+            <div class="mt-3">
+              <p>🚗 Pickup: <span id="pickupName" class="text-primary">—</span></p>
+              <p>🏁 Drop: <span id="dropName" class="text-success">—</span></p>
+              <p>📏 Distance: <span id="tripDistanceLabel" class="fw-bold">0</span> km</p>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" id="saveTrip" class="btn btn-primary px-4" data-bs-dismiss="modal">Save
+              Selection</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <style>
+    .map-container {
+      height: 250px;
+      width: 100%;
+    }
+  </style>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const tripInput = document.getElementById("trip_location");
+      const saveBtn = document.getElementById("saveTrip");
+      const pickupNameEl = document.getElementById("pickupName");
+      const dropNameEl = document.getElementById("dropName");
+      const tripDistanceLabel = document.getElementById("tripDistanceLabel");
+
+      // hidden inputs
+      const pickupLatInput = document.getElementById("pickup_lat");
+      const pickupLngInput = document.getElementById("pickup_lng");
+      const dropLatInput = document.getElementById("dropoff_lat");
+      const dropLngInput = document.getElementById("dropoff_lng");
+      const tripDistanceInput = document.getElementById("trip_distance");
+
+      // الأسعار
+      const totalPriceEl = document.getElementById("totalPrice");
+      const priceILS = document.getElementById("priceILS");
+      const priceEUR = document.getElementById("priceEUR");
+      const priceJOD = document.getElementById("priceJOD");
+      const carPrice = parseFloat(document.getElementById("carPrice").value);
+      const pickupInput = document.getElementById("pickup_date");
+      const returnInput = document.getElementById("return_date");
+      const daysCountEl = document.getElementById("daysCount");
+      let exchangeRates = null;
+
+      async function fetchRates() {
+        try {
+          const res = await fetch("https://api.exchangerate-api.com/v4/latest/USD");
+          const data = await res.json();
+          exchangeRates = data.rates;
+        } catch (e) { console.error("Currency API error:", e); }
+      }
+      fetchRates();
+
+      // Leaflet map
+      const map = L.map('map').setView([31.9522, 35.2332], 9);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+      let pickupMarker = null;
+      let dropMarker = null;
+      let pickupCoords = null;
+      let dropCoords = null;
+      let isPickupSet = false;
+
+      async function getPlaceName(lat, lng) {
+        try {
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`);
+          const data = await res.json();
+          return data.display_name.split(",").slice(0, 3).join(", ");
+        } catch {
+          return `${lat.toFixed(3)}, ${lng.toFixed(3)}`;
+        }
+      }
+
+      function calcDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371;
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat / 2) ** 2 +
+          Math.cos(lat1 * Math.PI / 180) *
+          Math.cos(lat2 * Math.PI / 180) *
+          Math.sin(dLon / 2) ** 2;
+        return (R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))).toFixed(2);
+      }
+
+      map.on("click", async (e) => {
+        const { lat, lng } = e.latlng;
+        if (!isPickupSet) {
+          if (pickupMarker) map.removeLayer(pickupMarker);
+          pickupMarker = L.marker([lat, lng]).addTo(map);
+          pickupCoords = { lat, lng };
+          pickupNameEl.textContent = "Loading...";
+          pickupNameEl.textContent = await getPlaceName(lat, lng);
+          isPickupSet = true;
+        } else {
+          if (dropMarker) map.removeLayer(dropMarker);
+          dropMarker = L.marker([lat, lng]).addTo(map);
+          dropCoords = { lat, lng };
+          dropNameEl.textContent = "Loading...";
+          dropNameEl.textContent = await getPlaceName(lat, lng);
+
+          const distance = calcDistance(pickupCoords.lat, pickupCoords.lng, dropCoords.lat, dropCoords.lng);
+          tripDistanceLabel.textContent = distance;
+        }
+      });
+
+      saveBtn.addEventListener("click", function () {
+        if (!pickupCoords || !dropCoords) {
+          alert("Please select both pickup and drop locations.");
+          return;
+        }
+
+        const pickup = pickupNameEl.textContent;
+        const drop = dropNameEl.textContent;
+        const distance = parseFloat(tripDistanceLabel.textContent);
+
+        // ✅ Update hidden input
+        tripInput.value = `${pickup} → ${drop} (${distance} km)`;
+
+        // ✅ Update visible booking summary
+        document.getElementById("tripRoute").textContent = `${pickup} → ${drop}`;
+
+        // Update hidden coordinates
+        pickupLatInput.value = pickupCoords.lat;
+        pickupLngInput.value = pickupCoords.lng;
+        dropLatInput.value = dropCoords.lat;
+        dropLngInput.value = dropCoords.lng;
+        tripDistanceInput.value = distance;
+
+        calculateTotal(distance);
+      });
+
+      function calculateTotal(distance = 0) {
+        if (pickupInput.value && returnInput.value) {
+          const start = new Date(pickupInput.value);
+          const end = new Date(returnInput.value);
+          let days = Math.max(Math.ceil((end - start) / (1000 * 60 * 60 * 24)), 1);
+          const totalUSD = (days * carPrice) + (distance * 0.3);
+
+          daysCountEl.textContent = days;
+          totalPriceEl.textContent = totalUSD.toFixed(2);
+
+          if (exchangeRates) {
+            priceILS.textContent = (totalUSD * exchangeRates["ILS"]).toFixed(2);
+            priceEUR.textContent = (totalUSD * exchangeRates["EUR"]).toFixed(2);
+            priceJOD.textContent = (totalUSD * exchangeRates["JOD"]).toFixed(2);
+          }
+        }
+      }
+
+      pickupInput.addEventListener("change", () => calculateTotal(parseFloat(tripDistanceLabel.textContent) || 0));
+      returnInput.addEventListener("change", () => calculateTotal(parseFloat(tripDistanceLabel.textContent) || 0));
+
+      const modalEl = document.getElementById("mapModal");
+      modalEl.addEventListener("shown.bs.modal", () => {
+        setTimeout(() => {
+          map.invalidateSize();
+          if (pickupCoords) {
+            map.setView([pickupCoords.lat, pickupCoords.lng], 13);
+          } else {
+            map.setView([31.9522, 35.2332], 9);
+          }
+        }, 500);
+      });
+    });
+    // ================= AJAX Booking =================
+    const bookingForm = document.getElementById("bookingForm");
+
+    bookingForm.addEventListener("submit", function (e) {
+      e.preventDefault(); // يمنع إعادة تحميل الصفحة
+
+      const formData = new FormData(bookingForm);
+
+      fetch("{% url 'booking' %}", {
+        method: "POST",
+        headers: {
+          "X-Requested-With": "XMLHttpRequest",
+          "X-CSRFToken": "{{ csrf_token }}",
+        },
+        body: formData
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === "success") {
+            alert(data.message); // عرض الرسالة
+            bookingForm.reset(); // تفريغ الفورم بعد الحجز
+            document.getElementById("tripRoute").textContent = "—";
+            document.getElementById("daysCount").textContent = "0";
+            document.getElementById("totalPrice").textContent = "0";
+            document.getElementById("priceILS").textContent = "0";
+            document.getElementById("priceEUR").textContent = "0";
+            document.getElementById("priceJOD").textContent = "0";
+            // إعادة تعيين الخريطة
+            if (pickupMarker) map.removeLayer(pickupMarker);
+            if (dropMarker) map.removeLayer(dropMarker);
+            pickupCoords = null;
+            dropCoords = null;
+            isPickupSet = false;
+          } else {
+            alert("⚠️ " + data.message);
+          }
+        })
+        .catch(err => console.error(err));
+    });
+  </script>
+
+  {% endblock %}

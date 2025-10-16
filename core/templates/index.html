@@ -1,0 +1,507 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} Home | Royal Cars {% endblock %}
+{% block content %}
+
+{% if messages %}
+<div class="container mt-4">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">{{ message }}
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+
+
+
+<!-- Carousel Start -->
+<div class="container-fluid p-0 mb-3">
+    <div id="header-carousel" class="carousel slide" data-ride="carousel">
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <img class="w-100" src="{% static 'img/carousel-1.jpg' %}" alt="Image">
+                <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
+                    <div class="p-3" style="max-width: 900px;">
+                        <h4 class="text-white text-uppercase mb-md-3">Rent A Car</h4>
+                        <h1 class="display-1 text-white mb-md-4">Best Rental Cars In Your Location</h1>
+                        <a href="{% url 'car' %}" class="btn btn-primary py-md-3 px-md-5 mt-2">Reserve Now</a>
+                    </div>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <img class="w-100" src="{% static 'img/carousel-2.jpg' %}" alt="Image">
+                <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
+                    <div class="p-3" style="max-width: 900px;">
+                        <h4 class="text-white text-uppercase mb-md-3">Rent A Car</h4>
+                        <h1 class="display-1 text-white mb-md-4">Quality Cars with Unlimited Miles</h1>
+                        <a href="{% url 'car' %}" class="btn btn-primary py-md-3 px-md-5 mt-2">Reserve Now</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <a class="carousel-control-prev" href="#header-carousel" data-slide="prev">
+            <div class="btn btn-dark" style="width: 45px; height: 45px;">
+                <span class="carousel-control-prev-icon mb-n2"></span>
+            </div>
+        </a>
+        <a class="carousel-control-next" href="#header-carousel" data-slide="next">
+            <div class="btn btn-dark" style="width: 45px; height: 45px;">
+                <span class="carousel-control-next-icon mb-n2"></span>
+            </div>
+        </a>
+    </div>
+</div>
+<!-- Carousel End -->
+
+
+<!-- About Start -->
+<div class="container-fluid py-1">
+    <div class="container pt-5 pb-3">
+        <h1 class="display-1 text-primary text-center">01</h1>
+        <h1 class="display-4 text-uppercase text-center mb-5">
+            Welcome To <span class="text-primary">Royal Cars</span>
+        </h1>
+        <div class="row justify-content-center">
+            <div class="col-lg-10 text-center">
+                <img class="w-75 mb-4" src="{% static 'img/about.png' %}" alt="About">
+                <p>
+                    Justo et eos et ut takimata sed sadipscing dolore lorem, et elitr labore labore voluptua no
+                    rebum sed,
+                    stet voluptua amet sed elitr ea dolor dolores no clita. Dolores diam magna clita ea eos amet,
+                    amet rebum
+                    voluptua vero vero sed clita accusam takimata. Nonumy labore ipsum sea voluptua sea eos sit
+                    justo, no
+                    ipsum sanctus sanctus no et no ipsum amet, tempor labore est labore no. Eos diam eirmod lorem ut
+                    eirmod,
+                    ipsum diam sadipscing stet dolores elitr elitr eirmod dolore. Magna elitr accusam takimata
+                    labore, et at
+                    erat eirmod consetetur tempor eirmod invidunt est, ipsum nonumy at et.
+                </p>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-lg-4 mb-2">
+                <div class="d-flex align-items-center bg-light p-4 mb-4" style="height: 150px;">
+                    <div class="d-flex align-items-center justify-content-center flex-shrink-0 bg-primary ml-n4 mr-4"
+                        style="width: 100px; height: 100px;">
+                        <i class="fa fa-2x fa-headset text-secondary"></i>
+                    </div>
+                    <h4 class="text-uppercase m-0">24/7 Car Rental Support</h4>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-2">
+                <div class="d-flex align-items-center bg-secondary p-4 mb-4" style="height: 150px;">
+                    <div class="d-flex align-items-center justify-content-center flex-shrink-0 bg-primary ml-n4 mr-4"
+                        style="width: 100px; height: 100px;">
+                        <i class="fa fa-2x fa-car text-secondary"></i>
+                    </div>
+                    <h4 class="text-light text-uppercase m-0">Car Reservation Anytime</h4>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-2">
+                <div class="d-flex align-items-center bg-light p-4 mb-4" style="height: 150px;">
+                    <div class="d-flex align-items-center justify-content-center flex-shrink-0 bg-primary ml-n4 mr-4"
+                        style="width: 100px; height: 100px;">
+                        <i class="fa fa-2x fa-map-marker-alt text-secondary"></i>
+                    </div>
+                    <h4 class="text-uppercase m-0">Lots Of Pickup Locations</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- About End -->
+<!-- Services Start -->
+<div class="container-fluid py-2">
+    <div class="container pt-5 pb-3">
+        <h1 class="display-1 text-primary text-center">02</h1>
+        <h1 class="display-4 text-uppercase text-center mb-5">Our Services</h1>
+        <div class="row">
+            <div class="col-lg-4 col-md-6 mb-2">
+                <div class="service-item d-flex flex-column justify-content-center px-4 mb-4">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div class="d-flex align-items-center justify-content-center bg-primary ml-n4"
+                            style="width: 80px; height: 80px;">
+                            <i class="fa fa-2x fa-taxi text-secondary"></i>
+                        </div>
+                        <h1 class="display-2 text-white mt-n2 m-0">01</h1>
+                    </div>
+                    <h4 class="text-uppercase mb-3">Car Rental</h4>
+                    <p class="m-0">Kasd dolor no lorem nonumy sit labore tempor at justo rebum rebum stet...</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-2">
+                <div class="service-item active d-flex flex-column justify-content-center px-4 mb-4">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div class="d-flex align-items-center justify-content-center bg-primary ml-n4"
+                            style="width: 80px; height: 80px;">
+                            <i class="fa fa-2x fa-money-check-alt text-secondary"></i>
+                        </div>
+                        <h1 class="display-2 text-white mt-n2 m-0">02</h1>
+                    </div>
+                    <h4 class="text-uppercase mb-3">Car Financing</h4>
+                    <p class="m-0">Kasd dolor no lorem nonumy sit labore tempor at justo rebum rebum stet...</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-2">
+                <div class="service-item d-flex flex-column justify-content-center px-4 mb-4">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div class="d-flex align-items-center justify-content-center bg-primary ml-n4"
+                            style="width: 80px; height: 80px;">
+                            <i class="fa fa-2x fa-car text-secondary"></i>
+                        </div>
+                        <h1 class="display-2 text-white mt-n2 m-0">03</h1>
+                    </div>
+                    <h4 class="text-uppercase mb-3">Car Inspection</h4>
+                    <p class="m-0">Kasd dolor no lorem nonumy sit labore tempor at justo rebum rebum stet...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Services End -->
+
+
+<div class="bg-banner py-3 px-4 text-center">
+    <div class="py-5">
+        <h1 class="display-1 text-uppercase text-primary mb-4">50% OFF</h1>
+        <h1 class="text-uppercase text-light mb-4">Special Offer For New Members</h1>
+        <p class="mb-4">Only for Sunday from 1st Jan to 30th Jan 2045</p>
+
+        {% if user.is_authenticated %}
+        <a class="btn btn-primary mt-2 py-3 px-5" href="{% url 'contact' %}">Contact Us</a>
+        {% else %}
+        <a class="btn btn-primary mt-2 py-3 px-5" href="{% url 'register' %}">Register Now</a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Rent A Car Start -->
+<div class="container-fluid py-2">
+    <div class="container pt-5 pb-3">
+        <h1 class="display-1 text-primary text-center">03</h1>
+        <h1 class="display-4 text-uppercase text-center mb-5">Find Your Car</h1>
+
+        <div class="row">
+            {% for car in cars %}
+            <div class="col-lg-4 col-md-6 mb-2 align-items-stretch car-card">
+                <div class="rent-item mb-4 card border-0 w-100 text-center animate__animated">
+                    {% if car.image %}
+                    <img class="card-img-top img-fluid mb-4" src="{{ car.image.url }}" alt="{{ car.name }}"
+                        style="height: 220px; object-fit: contain; background-color: #fff;">
+                    {% else %}
+                    <img class="img-fluid mb-4" src="{% static 'img/default-car.png' %}" alt="No Image">
+                    {% endif %}
+
+                    <h4 class="card-title text-uppercase mb-4">{{ car.name }}</h4>
+                    <div class="d-flex justify-content-center mb-4">
+                        <div class="px-2"><i class="fa fa-car text-primary mr-1"></i><span>{{ car.year }}</span>
+                        </div>
+                        <div class="px-2 border-left border-right"><i
+                                class="fa fa-cogs text-primary mr-1"></i><span>{{car.transmission }}</span></div>
+                        <div class="px-2"><i class="fa fa-road text-primary mr-1"></i><span>{{ car.mileage }}</span>
+                        </div>
+                    </div>
+                    <a class="btn btn-primary px-3" href="{% url 'detail' car.id %}">${{ car.price }}/Day</a>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-center w-100">🚗 No cars available yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<!-- Rent A Car End -->
+<!-- Rent A Car End -->
+<!-- Team Start -->
+<div class="container-fluid py-3">
+    <div class="container py-5">
+        <h1 class="display-1 text-primary text-center">04</h1>
+        <h1 class="display-4 text-uppercase text-center mb-5">Meet Our Team</h1>
+        <div class="owl-carousel team-carousel position-relative" style="padding: 0 30px;">
+            <div class="team-item">
+                <img class="img-fluid w-100" src="{% static 'img/team-1.jpg' %}" alt="">
+                <div class="position-relative py-4">
+                    <h4 class="text-uppercase">Full Name</h4>
+                    <p class="m-0">Designation</p>
+                    <div
+                        class="team-social position-absolute w-100 h-100 d-flex align-items-center justify-content-center">
+                        <a class="btn btn-lg btn-primary btn-lg-square mx-1" href="#"><i class="fab fa-twitter"></i></a>
+                        <a class="btn btn-lg btn-primary btn-lg-square mx-1" href="#"><i
+                                class="fab fa-facebook-f"></i></a>
+                        <a class="btn btn-lg btn-primary btn-lg-square mx-1" href="#"><i
+                                class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="team-item">
+                <img class="img-fluid w-100" src="{% static 'img/team-2.jpg' %}" alt="">
+                <div class="position-relative py-4">
+                    <h4 class="text-uppercase">Full Name</h4>
+                    <p class="m-0">Designation</p>
+                    <div
+                        class="team-social position-absolute w-100 h-100 d-flex align-items-center justify-content-center">
+                        <a class="btn btn-lg btn-primary btn-lg-square mx-1" href="#"><i class="fab fa-twitter"></i></a>
+                        <a class="btn btn-lg btn-primary btn-lg-square mx-1" href="#"><i
+                                class="fab fa-facebook-f"></i></a>
+                        <a class="btn btn-lg btn-primary btn-lg-square mx-1" href="#"><i
+                                class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="team-item">
+                <img class="img-fluid w-100" src="{% static 'img/team-3.jpg' %}" alt="">
+                <div class="position-relative py-4">
+                    <h4 class="text-uppercase">Full Name</h4>
+                    <p class="m-0">Designation</p>
+                    <div
+                        class="team-social position-absolute w-100 h-100 d-flex align-items-center justify-content-center">
+                        <a class="btn btn-lg btn-primary btn-lg-square mx-1" href="#"><i class="fab fa-twitter"></i></a>
+                        <a class="btn btn-lg btn-primary btn-lg-square mx-1" href="#"><i
+                                class="fab fa-facebook-f"></i></a>
+                        <a class="btn btn-lg btn-primary btn-lg-square mx-1" href="#"><i
+                                class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="team-item">
+                <img class="img-fluid w-100" src="{% static 'img/team-4.jpg' %}" alt="">
+                <div class="position-relative py-4">
+                    <h4 class="text-uppercase">Full Name</h4>
+                    <p class="m-0">Designation</p>
+                    <div
+                        class="team-social position-absolute w-100 h-100 d-flex align-items-center justify-content-center">
+                        <a class="btn btn-lg btn-primary btn-lg-square mx-1" href="#"><i class="fab fa-twitter"></i></a>
+                        <a class="btn btn-lg btn-primary btn-lg-square mx-1" href="#"><i
+                                class="fab fa-facebook-f"></i></a>
+                        <a class="btn btn-lg btn-primary btn-lg-square mx-1" href="#"><i
+                                class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Team End -->
+
+
+<!-- Testimonial Start -->
+<div class="container-fluid py-3">
+    <div class="container py-5">
+        <h1 class="display-1 text-primary text-center">05</h1>
+        <h1 class="display-4 text-uppercase text-center mb-5">Our Client's Say</h1>
+        <div class="owl-carousel testimonial-carousel">
+            <div class="testimonial-item d-flex flex-column justify-content-center px-4">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <img class="img-fluid ml-n4" src="{% static 'img/testimonial-1.jpg' %}" alt="">
+                    <h1 class="display-2 text-white m-0 fa fa-quote-right"></h1>
+                </div>
+                <h4 class="text-uppercase mb-2">Client Name</h4>
+                <i class="mb-2">Profession</i>
+                <p class="m-0">Kasd dolor no lorem nonumy sit labore tempor at justo rebum...</p>
+            </div>
+            <div class="testimonial-item d-flex flex-column justify-content-center px-4">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <img class="img-fluid ml-n4" src="{% static 'img/testimonial-2.jpg' %}" alt="">
+                    <h1 class="display-2 text-white m-0 fa fa-quote-right"></h1>
+                </div>
+                <h4 class="text-uppercase mb-2">Client Name</h4>
+                <i class="mb-2">Profession</i>
+                <p class="m-0">Kasd dolor no lorem nonumy sit labore tempor at justo rebum...</p>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Testimonial End -->
+<!-- Owners Start -->
+<div class="container-fluid py-5 bg-light">
+    <div class="container pt-5 pb-3">
+        <h1 class="display-1 text-primary text-center">06</h1>
+        <h1 class="display-4 text-uppercase text-center mb-5">Available Owners</h1>
+        <div class="row">
+            {% for owner in owners %}
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body text-center">
+                        <h4 class="card-title text-uppercase">{{ owner.company_name }}</h4>
+                        <p class="card-text"><i class="bi bi-person-circle"></i>
+                            {{ owner.username }}</p>
+                        <p class="card-text"><i class="bi bi-envelope-fill"></i>
+                            {{ owner.email }}</p>
+                        <a href="{% url 'owner_profile' owner.id %}" class="btn btn-outline-primary">View
+                            Profile</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-center w-100">No owners registered yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<!-- Owners End -->
+
+<div class="container py-2">
+    <h1 class="display-4 text-uppercase text-center mb-4">Contact Us</h1>
+
+    {% if messages %}
+    <div class="mb-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-lg-7 mb-2">
+            <div class="contact-form bg-light mb-4 p-4">
+                <form method="post" action="{% url 'contact' %}">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-6 form-group">
+                            <input type="text" class="form-control p-4" name="name" placeholder="Your Name" required>
+                        </div>
+                        <div class="col-6 form-group">
+                            <input type="email" class="form-control p-4" name="email"
+                                value="{% if user.is_authenticated %}{{ user.email }}{% endif %}"
+                                placeholder="Your Email" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-control p-4" name="subject" placeholder="Subject" required>
+                    </div>
+                    <div class="form-group">
+                        <textarea class="form-control py-3 px-4" rows="5" name="message" placeholder="Message"
+                            required></textarea>
+                    </div>
+                    <div>
+                        <button class="btn btn-primary py-3 px-5" type="submit">Send Message</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-lg-5 mb-2">
+            <div class="bg-secondary d-flex flex-column justify-content-center px-5 mb-4" style="height: 435px;">
+                <div class="d-flex mb-3">
+                    <i class="fa fa-2x fa-map-marker-alt text-primary flex-shrink-0 mr-3"></i>
+                    <div class="mt-n1">
+                        <h5 class="text-light">Head Office</h5>
+                        <p>123 Street, Cairo, Egypt</p>
+                    </div>
+                </div>
+                <div class="d-flex mb-3">
+                    <i class="fa fa-2x fa-map-marker-alt text-primary flex-shrink-0 mr-3"></i>
+                    <div class="mt-n1">
+                        <h5 class="text-light">Branch Office</h5>
+                        <p>123 Street, Ramallah, Palestine</p>
+                    </div>
+                </div>
+                <div class="d-flex mb-3">
+                    <i class="fa fa-2x fa-envelope-open text-primary flex-shrink-0 mr-3"></i>
+                    <div class="mt-n1">
+                        <h5 class="text-light">Customer Service</h5>
+                        <p>customer@example.com</p>
+                    </div>
+                </div>
+                <div class="d-flex">
+                    <i class="fa fa-2x fa-envelope-open text-primary flex-shrink-0 mr-3"></i>
+                    <div class="mt-n1">
+                        <h5 class="text-light">Return & Refund</h5>
+                        <p class="m-0">refund@example.com</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid py-2">
+    <div class="container py-5">
+        <div class="owl-carousel vendor-carousel">
+            <div class="bg-light p-4"><img src="{% static 'img/vendor-1.png' %}" alt=""></div>
+            <div class="bg-light p-4"><img src="{% static 'img/vendor-2.png' %}" alt=""></div>
+            <div class="bg-light p-4"><img src="{% static 'img/vendor-3.png' %}" alt=""></div>
+            <div class="bg-light p-4"><img src="{% static 'img/vendor-4.png' %}" alt=""></div>
+            <div class="bg-light p-4"><img src="{% static 'img/vendor-5.png' %}" alt=""></div>
+            <div class="bg-light p-4"><img src="{% static 'img/vendor-6.png' %}" alt=""></div>
+            <div class="bg-light p-4"><img src="{% static 'img/vendor-7.png' %}" alt=""></div>
+            <div class="bg-light p-4"><img src="{% static 'img/vendor-8.png' %}" alt=""></div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade animate__animated animate__fadeInDown" id="welcomeModal" tabindex="-1"
+    aria-labelledby="welcomeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg border-0 rounded-3">
+
+            <!-- Header -->
+            <div class="modal-header bg-secondary ">
+                <h5 class="modal-title fw-bold text-white" id="welcomeModalLabel">
+                    <i class="fas fa-handshake me-2"></i> Welcome to Royal Cars
+                </h5>
+                <button type="button" class="btn btn-sm btn-outline-light border-0" data-bs-dismiss="modal"
+                    aria-label="Close">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body text-center">
+                <img src="{% static 'img/logo.png' %}" alt="logo" class="logo mb-2 d-block mx-auto rounded-circle"
+                    style="width: 75px; height: 75px;">
+                <p class="text-muted mt-3">Discover the best cars for rent and connect with trusted agents.</p>
+            </div>
+
+            <!-- Footer -->
+            <div class="modal-footer d-flex justify-content-center">
+                <a href="{% url 'car' %}" class="btn btn-primary px-4">
+                    <i class="fas fa-car me-2"></i> Explore Cars
+                </a>
+                <a href="{% url 'companies_list' %}" class="btn btn-outline-primary px-4">
+                    <i class="fas fa-users me-2"></i> Explore Agents
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var welcomeModal = new bootstrap.Modal(document.getElementById('welcomeModal'));
+        welcomeModal.show();
+    });
+</script>
+
+<script>
+
+    const carCardObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                // When intersecting, add the animation class
+                entry.target.classList.add("animate__slideInLeft");
+                // OPTIONAL: Stop observing after it has animated once
+                // observer.unobserve(entry.target); 
+            }
+        });
+    }, {
+        // Optional: Root Margin and Threshold for better control
+        rootMargin: '0px',
+        threshold: 0.15 // 10% of the element must be visible
+    });
+
+    // Select ALL elements with the class 'rent-item'
+    const carCards = document.querySelectorAll(".rent-item");
+
+    // Loop through the NodeList and observe each one
+    carCards.forEach(card => {
+        carCardObserver.observe(card);
+    });
+</script>
+
+{% endblock %}

@@ -1,0 +1,115 @@
+<span></span>
+
+{% for i in cars %}
+  {% if i.unavailable_booking %}
+    <!-- 🚫 كارد السيارة المحجوزة -->
+    <div class="col-lg-4 col-md-6 mb-3 align-items-stretch car-card">
+      <div class="rent-item card border-danger shadow-sm h-100 text-center animate__animated animate__fadeIn">
+        {% if i.image %}
+          <img class="card-img-top img-fluid"
+               src="{{ i.image.url }}"
+               alt="{{ i.name }}"
+               style="height: 220px; object-fit: cover; filter: grayscale(80%); opacity:0.7;">
+        {% endif %}
+        <div class="card-body d-flex flex-column">
+          <h4 class="card-title text-uppercase mb-3 text-danger">{{ i.name }}</h4>
+
+          <div class="alert alert-warning small shadow-sm">
+            <i class="fas fa-exclamation-triangle text-danger me-1"></i>
+            Unavailable from {{ i.unavailable_booking.pickup_date }} {{ i.unavailable_booking.pickup_time }}
+            → {{ i.unavailable_booking.return_date }} {{ i.unavailable_booking.return_time }}
+          </div>
+
+          <div class="mt-auto">
+            <!-- 👇 زر السعر نفسه لكن معطل -->
+            <a class="btn fw-bold btn-primary px-3 price-display disabled"
+               data-price="{{ i.price }}" href="#"
+               tabindex="-1" aria-disabled="true">
+               <i class="fas fa-tag me-1"></i> ${{ i.price }}/Day
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <!-- ✅ كارد السيارة المتاحة -->
+    <div class="col-lg-4 col-md-6 mb-3 align-items-stretch car-card">
+      <div class="rent-item card border-0 shadow-sm h-100 text-center animate__animated animate__fadeIn">
+        {% if i.image %}
+          <img class="card-img-top img-fluid"
+               src="{{ i.image.url }}"
+               alt="{{ i.name }}"
+               style="height: 220px; object-fit: cover; background-color: #fff; border-bottom: 1px solid #eee;">
+        {% endif %}
+        <div class="card-body d-flex flex-column">
+          <h4 class="card-title text-uppercase mb-4">{{ i.name }}</h4>
+
+          <div class="d-flex justify-content-center mb-4">
+            <div class="px-2">
+              <i class="fas fa-car text-primary mr-1"></i>
+              <span>{{ i.year }}</span>
+            </div>
+            <div class="px-2 border-left border-right">
+              <i class="fas fa-cogs text-primary mr-1"></i>
+              <span>{{ i.transmission }}</span>
+            </div>
+            <div class="px-2">
+              <i class="fas fa-tachometer-alt text-primary mr-1"></i>
+              <span>{{ i.mileage }}</span>
+            </div>
+          </div>
+
+          <div class="mt-auto">
+            <a class="btn fw-bold btn-primary px-3 price-display"
+               data-price="{{ i.price }}" href="{% url 'detail' i.pk %}">
+               <i class="fas fa-tag me-1"></i> ${{ i.price }}/Day
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+{% empty %}
+  <div class="col-12">
+    <div class="alert alert-info text-center shadow-sm">
+      <i class="fas fa-car-side me-1"></i> No cars found.
+    </div>
+  </div>
+{% endfor %}
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const approveForm = document.getElementById("approveForm");
+
+    approveForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const formData = new FormData(approveForm);
+
+      fetch(approveForm.action, {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": formData.get("csrfmiddlewaretoken"),
+        },
+        body: formData,
+      })
+        .then(response => {
+          if (response.ok) {
+            // إغلاق مودال العقد
+            const contractModal = bootstrap.Modal.getInstance(document.getElementById("contractModal"));
+            contractModal.hide();
+
+            // فتح مودال النجاح
+            const successModal = new bootstrap.Modal(document.getElementById("successModal"));
+            successModal.show();
+          } else {
+            alert("Something went wrong. Please try again.");
+          }
+        })
+        .catch(error => {
+          console.error("Error approving contract:", error);
+        });
+    });
+  });
+</script>

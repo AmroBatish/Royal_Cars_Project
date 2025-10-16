@@ -1,0 +1,41 @@
+{% for i in cars %}
+<div class="col-lg-4 col-md-6 mb-3 align-items-stretch car-card">
+  <div class="rent-item card border-0 shadow-sm h-100 text-center animate__animated animate__fadeIn">
+    {% if i.image %}
+    <img class="card-img-top img-fluid" src="{{ i.image.url }}" alt="{{ i.name }}"
+      style="height: 220px; object-fit: cover; background-color: #fff; border-bottom: 1px solid #eee;">
+    {% endif %}
+    <div class="card-body d-flex flex-column">
+      <h4 class="card-title text-uppercase mb-4">{{ i.name }}</h4>
+
+      <!-- مواصفات السيارة -->
+      <div class="d-flex justify-content-center mb-4">
+        <div class="px-2">
+          <i class="fas fa-car text-primary mr-1"></i>
+          <span>{{ i.year }}</span>
+        </div>
+        <div class="px-2 border-left border-right">
+          <i class="fas fa-cogs text-primary mr-1"></i>
+          <span>{{ i.transmission }}</span>
+        </div>
+        <div class="px-2">
+          <i class="fas fa-tachometer-alt text-primary mr-1"></i>
+          <span>{{ i.mileage }}</span>
+        </div>
+      </div>
+
+      <div class="mt-auto">
+        <a class="btn fw-bold btn-primary px-3 price-display" data-price="{{ i.price }}" href="{% url 'detail' i.pk %}">
+          <i class="fas fa-tag me-1"></i> ${{ i.price }}/Day
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% empty %}
+<div class="col-12">
+  <div class="alert alert-info text-center shadow-sm">
+    <i class="fas fa-car-side me-1"></i> No cars found.
+  </div>
+</div>
+{% endfor %}

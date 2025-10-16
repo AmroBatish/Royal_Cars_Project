@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+  <h2 class="mb-4 text-center text-dark">
+    <i class="fas fa-users me-2"></i> Car Owners (Agents)
+  </h2>
+
+  <div class="row ">
+    {% for owner in owners %}
+      <div class="col-md-4 mb-4 mt-2">
+        <div class="card shadow-sm h-100 border-0">
+          <div class="card-body text-center">
+            <!-- أيقونة أو صورة -->
+            <i class="fas fa-user-circle fa-4x text-primary mb-3"></i>
+
+            <!-- اسم المالك -->
+            <h5 class="card-title mb-1">{{ owner.username }}</h5>
+            <p class="text-muted small mb-3">
+              <i class="fas fa-envelope me-1"></i> {{ owner.email }}
+            </p>
+
+            <!-- أزرار -->
+            <div class="d-flex justify-content-center gap-2">
+              
+              <a href="{% url 'owner_cars' owner.id %}" class="btn btn-sm btn-outline-dark">
+                <i class="fas fa-car me-1"></i> Cars
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <p class="text-center text-muted">No agents found.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

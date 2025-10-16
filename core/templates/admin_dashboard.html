@@ -1,0 +1,351 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid stats-bar py-3 col-12 col-md-11 rounded-3 shadow-sm mt-1">
+    <div class="row text-center text-dark justify-content-center">
+
+        <!-- Users (0.5s) -->
+        <div class="col-6 col-md-2 mb-2">
+            <div class="stat-box animate__animated animate__fadeInUp animate__delay-05s">
+                <h6 class="text-primary"><i class="fa fa-users me-1"></i> Users</h6>
+                <h5>{{ total_users }}</h5>
+                <small>
+                    Owners: {{ total_owners }} | Renters: {{ total_renters }}
+                </small>
+            </div>
+        </div>
+
+        <!-- Cars (1s) -->
+        <div class="col-6 col-md-2 mb-2">
+            <div class="stat-box animate__animated animate__fadeInUp animate__delay-1s">
+                <h6 class="text-primary"><i class="fa fa-car me-1"></i> Cars</h6>
+                <h5>{{ total_cars }}</h5>
+                <small>
+                    Available: {{ available_cars }} | Unavailable: {{ unavailable_cars }}
+                </small>
+            </div>
+        </div>
+
+        <!-- Bookings (1.5s) -->
+        <div class="col-6 col-md-2 mb-2">
+            <div class="stat-box animate__animated animate__fadeInUp animate__delay-05s">
+                <h6 class="text-primary"><i class="fa fa-list me-1"></i> Bookings</h6>
+                <h5>{{ total_bookings }}</h5>
+                <small>
+                    P: {{ pending }} | A: {{ approved }} | R: {{ rejected }} | Paid: {{ paid }}
+                </small>
+            </div>
+        </div>
+
+        <!-- Payments (2s) -->
+        <div class="col-6 col-md-2 mb-2">
+            <div class="stat-box animate__animated animate__fadeInUp animate__delay-1s">
+                <h6 class="text-primary"><i class="fa fa-dollar-sign me-1"></i> Payments</h6>
+                <h5>${{ total_payments|floatformat:2 }}</h5>
+                <small>{{ payments_count }} payments</small>
+            </div>
+        </div>
+
+        <!-- Reviews (2.5s) -->
+        <div class="col-6 col-md-2 mb-2">
+            <div class="stat-box animate__animated animate__fadeInUp animate__delay-05s">
+                <h6 class="text-primary"><i class="fa fa-star me-1"></i> Reviews</h6>
+                <h5>{{ total_reviews }}</h5>
+                <small>Avg: {{ avg_rating|floatformat:1 }}</small>
+            </div>
+        </div>
+
+        <!-- Profits (2.5s) -->
+        <div class="col-6 col-md-2 mb-2">
+            <div class="stat-box animate__animated animate__fadeInUp animate__delay-1s">
+                <h6 class="text-success"><i class="fa fa-chart-line me-1"></i> Profits</h6>
+                <h5>${{ profits|floatformat:2 }}</h5>
+                <span class="text-danger" style="font-size: 12px;"> 10% of total payments</span>
+            </div>
+        </div>
+
+    </div>
+
+
+</div>
+
+<div class="container-fluid col-12 col-md-11 mt-4">
+    <h3 class="text-center text-dark mb-3">Custom Admin Dashboard</h3>
+
+    <div class="row justify-content-between mt-5">
+        <!-- العمود الشمال: الجداول -->
+        <div class="col-md-6">
+            <!-- آخر 5 مستخدمين -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-header fw-bold"><i class="fa fa-user me-2"></i> Recent Users</div>
+                <div class="card-body p-0">
+                    <table class="table table-sm table-striped mb-0 text-center">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Username</th>
+                                <th>Role</th>
+                                <th>Joined</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for u in recent_users %}
+                            <tr>
+                                <td>{{ u.username }}</td>
+                                <td>{{ u.get_role_display }}</td>
+                                <td>{{ u.date_joined|date:"Y-m-d" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3">No users</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- آخر 5 سيارات -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-header fw-bold"><i class="fa fa-car me-2"></i> Recent Cars</div>
+                <div class="card-body p-0">
+                    <table class="table table-sm table-striped mb-0 text-center">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Name</th>
+                                <th>Owner</th>
+                                <th>Year</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for c in recent_cars %}
+                            <tr>
+                                <td>{{ c.name }}</td>
+                                <td>{{ c.owner.username }}</td>
+                                <td>{{ c.year }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3">No cars</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- آخر 5 حجوزات -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-header fw-bold"><i class="fa fa-calendar-check me-2"></i> Recent Bookings</div>
+                <div class="card-body p-0">
+                    <table class="table table-sm table-striped mb-0 text-center">
+                        <thead class="table-light">
+                            <tr>
+                                <th>User</th>
+                                <th>Car</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for b in recent_bookings %}
+                            <tr>
+                                <td>{{ b.user.username }}</td>
+                                <td>{{ b.car.name }}</td>
+                                <td><span class="badge bg-warning text-white"><small>{{ b.status }}</small></span></td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3">No bookings</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- العمود اليمين: المخططات -->
+        <div class="col-md-5 offset-md-1">
+            <form method="get" action="{% url 'export_excel' %}" class="mb-4">
+                <div class="card shadow-sm border-0 animate__animated animate__fadeInUp">
+                    <div class="card-body">
+                        <h6 class="text-primary mb-3">
+                            <i class="fa fa-file-export me-1"></i> Export Admin Report
+                        </h6>
+                        <div class="row g-3 align-items-end">
+
+                            <!-- Start Date -->
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold text-muted" style="font-size: 14px;">From Date</label>
+                                <input type="date" name="start_date" class="form-control shadow-sm"
+                                    placeholder="من تاريخ">
+                            </div>
+
+                            <!-- End Date -->
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold text-muted" style="font-size: 14px;">To Date</label>
+                                <input type="date" name="end_date" class="form-control shadow-sm"
+                                    placeholder="إلى تاريخ">
+                            </div>
+
+                            <!-- Export Excel -->
+                            <div class="col-md-3">
+                                <button type="submit"
+                                    class="btn btn-sm btn-success w-100 shadow-sm animate__animated animate__pulse animate__delay-1s" style="max-height: 80px;">
+                                    <i class="fa fa-file-excel me-1"></i> Export Excel
+                                </button>
+                            </div>
+
+                            <!-- Export PDF -->
+                            <div class="col-md-3">
+                                <button formaction="{% url 'export_pdf' %}" type="submit"
+                                    class="btn btn-sm  btn-danger w-100 shadow-sm animate__animated animate__pulse animate__delay-2s" style="max-height: 80px;">
+                                    <i class="fa fa-file-pdf me-1"></i> Export PDF
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div class="d-flex justify-content-center">
+                <div class="card shadow-sm mb-3" style="max-width: 450px;">
+                <div class="card-header fw-bold"><i class="fa fa-chart-pie me-2"></i> Bookings by Status</div>
+                <div class="card-body">
+                    <canvas id="bookingStatusChart" ></canvas>
+                </div>
+            </div>
+            </div>
+
+            
+            <div class="card shadow-sm mb-3">
+                <div class="card-header fw-bold"><i class="fa fa-users me-2"></i> User Bookings</div>
+                <div class="card-body">
+                    <canvas id="userBookingsChart"></canvas>
+                </div>
+            </div>
+            <div class="card shadow-sm mb-3">
+                <div class="card-header fw-bold"><i class="fa fa-chart-bar me-2"></i> Owner Payments</div>
+                <div class="card-body">
+                    <canvas id="ownerPaymentsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+{{ months|json_script:"months-data" }}
+{{ payments|json_script:"payments-data" }}
+{{ booking_status_data|json_script:"booking-status-data" }}
+{{ user_booking_data|json_script:"user-booking-data" }}
+
+{{ owner_payments|json_script:"owner-payments-data" }}
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const statusData = JSON.parse(document.getElementById("booking-status-data").textContent);
+
+    const bookingStatusCtx = document.getElementById('bookingStatusChart').getContext('2d');
+    new Chart(bookingStatusCtx, {
+        type: 'doughnut',   // بدل pie
+        data: {
+            labels: ['Pending', 'Approved', 'Rejected', 'Paid'],
+            datasets: [{
+                data: [
+                    statusData.pending || 0,
+                    statusData.approved || 0,
+                    statusData.rejected || 0,
+                    statusData.paid || 0
+                ],
+                backgroundColor: ['#f6c23e', '#1cc88a', '#e74a3b', '#36b9cc'],
+            }]
+        },
+        options: {
+            responsive: true,
+            cutout: '60%',   // حجم الفتحة الداخلية (تقدر تزود أو تنقص)
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+
+
+</script>
+<script>
+    const userBookingData = JSON.parse(document.getElementById("user-booking-data").textContent);
+
+    const usernames = userBookingData.map(u => u.username);
+    const pendingData = userBookingData.map(u => u.pending);
+    const approvedData = userBookingData.map(u => u.approved);
+    const rejectedData = userBookingData.map(u => u.rejected);
+    const paidData = userBookingData.map(u => u.paid);
+
+    const ctx = document.getElementById('userBookingsChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: usernames,
+            datasets: [
+                {
+                    label: 'Pending',
+                    data: pendingData,
+                    backgroundColor: '#f6c23e'
+                },
+                {
+                    label: 'Approved',
+                    data: approvedData,
+                    backgroundColor: '#1cc88a'
+                },
+                {
+                    label: 'Rejected',
+                    data: rejectedData,
+                    backgroundColor: '#e74a3b'
+                },
+                {
+                    label: 'Paid',
+                    data: paidData,
+                    backgroundColor: '#36b9cc'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' }
+            },
+            scales: {
+                x: { stacked: true },
+                y: { stacked: true, beginAtZero: true }
+            }
+        }
+    });
+</script>
+<script>
+    const ownerPayments = JSON.parse(document.getElementById("owner-payments-data").textContent);
+
+    const owners = ownerPayments.map(op => op.owner);
+    const totals = ownerPayments.map(op => op.total);
+
+    new Chart(document.getElementById('ownerPaymentsChart'), {
+        type: 'bar',
+        data: {
+            labels: owners,
+            datasets: [{
+                label: 'Total Payments',
+                data: totals,
+                backgroundColor: '#36b9cc'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+</script>
+{% endblock %}

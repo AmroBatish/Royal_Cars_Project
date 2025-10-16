@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} Testimonial {% endblock %}
+{% block content %}
+
+<!-- Page Header Start -->
+ {% if messages %}
+<div class="container mt-4">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">{{ message }}
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="container-fluid page-header">
+    <h1 class="display-3 text-uppercase text-white mb-3">Testimonial</h1>
+    <div class="d-inline-flex text-white">
+        <h6 class="text-uppercase m-0"><a class="text-white" href="{% url 'index' %}">Home</a></h6>
+        <h6 class="text-body m-0 px-3">/</h6>
+        <h6 class="text-uppercase text-body m-0">Testimonial</h6>
+    </div>
+</div>
+<!-- Page Header End -->
+
+<!-- Testimonial Start -->
+<div class="container-fluid py-5">
+    <div class="container py-5">
+        <h1 class="display-4 text-uppercase text-center mb-5">Our Client's Say</h1>
+        <div class="owl-carousel testimonial-carousel">
+            <div class="testimonial-item d-flex flex-column justify-content-center px-4">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <img class="img-fluid ml-n4" src="{% static 'img/testimonial-1.jpg' %}" alt="">
+                    <h1 class="display-2 text-white m-0 fa fa-quote-right"></h1>
+                </div>
+                <h4 class="text-uppercase mb-2">Client Name</h4>
+                <i class="mb-2">Profession</i>
+                <p class="m-0">Great service! Highly recommended.</p>
+            </div>
+            <div class="testimonial-item d-flex flex-column justify-content-center px-4">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <img class="img-fluid ml-n4" src="{% static 'img/testimonial-2.jpg' %}" alt="">
+                    <h1 class="display-2 text-white m-0 fa fa-quote-right"></h1>
+                </div>
+                <h4 class="text-uppercase mb-2">Client Name</h4>
+                <i class="mb-2">Profession</i>
+                <p class="m-0">Affordable and reliable car rentals.</p>
+            </div>
+            <div class="testimonial-item d-flex flex-column justify-content-center px-4">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <img class="img-fluid ml-n4" src="{% static 'img/testimonial-3.jpg' %}" alt="">
+                    <h1 class="display-2 text-white m-0 fa fa-quote-right"></h1>
+                </div>
+                <h4 class="text-uppercase mb-2">Client Name</h4>
+                <i class="mb-2">Profession</i>
+                <p class="m-0">Best car rental experience so far.</p>
+            </div>
+            <div class="testimonial-item d-flex flex-column justify-content-center px-4">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <img class="img-fluid ml-n4" src="{% static 'img/testimonial-4.jpg' %}" alt="">
+                    <h1 class="display-2 text-white m-0 fa fa-quote-right"></h1>
+                </div>
+                <h4 class="text-uppercase mb-2">Client Name</h4>
+                <i class="mb-2">Profession</i>
+                <p class="m-0">Excellent cars and great support staff.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container-fluid py-5">
+    <div class="container py-5">
+        <div class="owl-carousel vendor-carousel">
+            <div class="bg-light p-4"><img src="{% static 'img/vendor-1.png' %}" alt=""></div>
+            <div class="bg-light p-4"><img src="{% static 'img/vendor-2.png' %}" alt=""></div>
+            <div class="bg-light p-4"><img src="{% static 'img/vendor-3.png' %}" alt=""></div>
+            <div class="bg-light p-4"><img src="{% static 'img/vendor-4.png' %}" alt=""></div>
+            <div class="bg-light p-4"><img src="{% static 'img/vendor-5.png' %}" alt=""></div>
+            <div class="bg-light p-4"><img src="{% static 'img/vendor-6.png' %}" alt=""></div>
+            <div class="bg-light p-4"><img src="{% static 'img/vendor-7.png' %}" alt=""></div>
+            <div class="bg-light p-4"><img src="{% static 'img/vendor-8.png' %}" alt=""></div>
+        </div>
+    </div>
+</div>
+
+
+
+{% endblock %}

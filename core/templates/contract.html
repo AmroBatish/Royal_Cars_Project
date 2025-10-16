@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+  @media print {
+
+    /* اخفي كل شيء */
+    body * {
+      visibility: hidden !important;
+    }
+
+    /* خلي العقد فقط يظهر */
+    .contract,
+    .contract * {
+      visibility: visible !important;
+    }
+
+    .contract {
+      position: relative;
+      top: 0;
+      left: 0;
+      width: 210mm;
+      /* عرض A4 */
+      min-height: 297mm;
+      /* طول A4 */
+      margin: 0 auto;
+      padding: 20mm;
+      box-shadow: none !important;
+      background: #fff !important;
+      font-size: 12pt !important;
+      line-height: 1.5 !important;
+      color: #000 !important;
+      font-family: Arial, sans-serif !important;
+      page-break-inside: avoid;
+    }
+
+    /* اخفي زر الطباعة */
+    .contract button {
+      display: none !important;
+    }
+
+    /* ضبط التواقيع جنب بعض */
+    .signatures-row {
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: flex-start !important;
+      flex-wrap: nowrap !important;
+      gap: 10px;
+      page-break-inside: avoid;
+    }
+
+    .signatures-row>div {
+      width: 32% !important;
+      display: inline-block !important;
+      vertical-align: top;
+      page-break-inside: avoid;
+    }
+
+    @page {
+      size: A4;
+      margin: 15mm;
+    }
+  }
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="contract p-5 border bg-white shadow rounded-3 my-5 col-md-9 mx-auto">
+  <h2 class="text-center mb-4 ">Car Rental Agreement</h2>
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <p class="text-dark fw-bold"><strong>Contract Date:</strong> {{ contract.created_at|date:"Y-m-d H:i" }}</p>
+  <img src="{% static 'img/qr-code.png' %}" alt="qrCodeImg" class="float-end animate__animated animate__fadeInUp "
+                    style="height:150px; width:150px;">
+  </div>
+
+  <div class="section-title fw-bold border-bottom pb-1 mt-4 text-dark">Parties</div>
+  <p><strong>Lessor (Owner):</strong> {{ contract.booking.car.owner.username }} / {{ contract.owner_company }}</p>
+  <p><strong>Lessee (Renter):</strong> {{ contract.booking.user.username }} - {{ contract.booking.user.phone }}</p>
+
+  <div class="section-title fw-bold border-bottom pb-1 mt-4 text-dark">Car Details</div>
+  <ul>
+    <li><strong>Name:</strong> {{ contract.booking.car.name }}</li>
+    <li><strong>Transmission:</strong> {{ contract.booking.car.get_transmission_display }}</li>
+    <li><strong>Year:</strong> {{ contract.booking.car.year }}</li>
+  </ul>
+
+  <div class="section-title fw-bold border-bottom pb-1 mt-4 text-dark">Rental Details</div>
+  <ul>
+    <li><strong>Daily Rate:</strong> {{ contract.booking.car.price }} USD</li>
+    <li><strong>Number of Days:</strong> {{ contract.booking.rental_days }}</li>
+    <li><strong>Total Price:</strong> {{ contract.total_price }} USD</li>
+  </ul>
+
+  <div class="section-title fw-bold border-bottom pb-1 mt-4 text-dark">General Terms & Conditions</div>
+  <ul class="fa-ul mt-2">
+    <li><span class="fa-li"><i class="fa-solid fa-circle-dot text-primary"></i></span>
+      The Lessee agrees to pay the rental fees in full and on time as specified in this agreement.
+    </li>
+    <li><span class="fa-li"><i class="fa-solid fa-circle-dot text-primary"></i></span>
+      The Lessee shall use the vehicle responsibly and in compliance with traffic laws and regulations.
+    </li>
+    <li><span class="fa-li"><i class="fa-solid fa-circle-dot text-primary"></i></span>
+      The Lessee is responsible for any damages caused to the vehicle during the rental period, except for normal wear
+      and tear.
+    </li>
+    <li><span class="fa-li"><i class="fa-solid fa-circle-dot text-primary"></i></span>
+      The Lessee agrees to return the vehicle on the agreed date, in the same condition it was received, with all
+      documents and accessories.
+    </li>
+    <li><span class="fa-li"><i class="fa-solid fa-circle-dot text-primary"></i></span>
+      Insurance Coverage: The Lessee is responsible for any additional insurance beyond what is specified in this agreement
+
+    </li>
+
+  </ul>
+
+
+
+  {% if contract.notes %}
+  <div class="section-title fw-bold border-bottom pb-1 mt-4 mb-3">Additional Notes</div>
+  <p>{{ contract.notes }}</p>
+  {% endif %}
+  <div class="section-title fw-bold border-bottom pb-1 mt-4"></div>
+  <div class="row mt-4">
+
+    <div class="d-flex justify-content-between align-items-start no-wrap" style="page-break-inside: avoid; width:100%;">
+      <!-- Owner -->
+      <div class="text-center flex-grow-1" style="width: 30%;">
+        <p class="text-dark">Signature of Lessor (Owner)</p>
+        <span class="text-danger fw-bold position-relative" style="z-index:2;">
+          {{ contract.booking.car.owner.username }}
+        </span>
+        <div class="signature-box border-top mt-3 position-relative" style="height:100px;">
+          <img src="{% static 'img/ownerStamp.png' %}" alt="Owner Stamp"
+            class="position-absolute top-50 start-50 translate-middle opacity-50" style="max-height:90px; z-index:1;">
+        </div>
+      </div>
+
+      <!-- Renter -->
+      <div class="text-center flex-grow-1" style="width: 30%;">
+        <p class="text-dark">Signature of Lessee (Renter)</p>
+        <span class="text-danger fw-bold position-relative" style="z-index:2;">
+          {{ contract.booking.user.username }}
+        </span>
+        <div class="signature-box border-top mt-3 position-relative" style="height:100px;">
+          <img src="{% static 'img/renterStamp.png' %}" alt="Renter Stamp"
+            class="position-absolute top-50 start-50 translate-middle opacity-50" style="max-height:90px; z-index:1;">
+        </div>
+      </div>
+
+      <!-- Company Seal -->
+      <div class="text-center flex-grow-1" style="width: 30%;">
+        <p class="text-dark">Company Approved</p>
+        <span class="text-danger fw-bold position-relative" style="z-index:2;"> Royal Car Rental</span>
+        <div class="signature-box border-top mt-3 position-relative d-inline-block" style="height:120px; width:100%;">
+          <img src="{% static 'img/royalStamp.png' %}" alt="Company Stamp"
+            class="position-absolute top-50 start-50 translate-middle opacity-75" style="max-height:90px; z-index:1;">
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="text-end mb-3 d-flex justify-content-end mt-4">
+    <button onclick="window.print()" class="btn btn-outline-secondary btn-sm mr-2">
+      <i class="fa fa-print me-1"></i> Print Contract
+    </button>
+    <button id="downloadPDF" class="btn btn-outline-primary btn-sm">
+      <i class="fa fa-file-pdf me-1"></i> Download PDF
+    </button>
+
+  </div>
+</div>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<script>
+  document.getElementById("downloadPDF").addEventListener("click", () => {
+    const element = document.querySelector(".contract");
+    const opt = {
+      margin: 0.5,
+      filename: 'Car-Rental-Agreement.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] } // أهم شيء
+    };
+    html2pdf().set(opt).from(element).save();
+  });
+</script>
+
+{% endblock %}

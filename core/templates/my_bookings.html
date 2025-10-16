@@ -1,0 +1,385 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} My Bookings {% endblock %}
+
+{% block content %}
+
+<!-- Alerts -->
+{% if messages %}
+<div class="container mt-4">
+  {% for message in messages %}
+  <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">{{ message }}
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- Review Modals -->
+{% for booking in bookings %}
+{% if booking.status == "paid" and not booking.review %}
+<div class="modal fade" id="reviewModal{{ booking.id }}" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title fw-bold">
+          <i class="fa fa-star me-2"></i> Leave a Review for {{ booking.car.name }}
+        </h5>
+        <button type="button" class="btn btn-sm btn-outline-light border-0" data-bs-dismiss="modal" aria-label="Close">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <form method="post" action="{% url 'create_review' booking.id %}">
+        {% csrf_token %}
+        <div class="modal-body">
+          <!-- Rating -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">
+              <i class="fa fa-star text-warning me-1"></i> Rating (1–5)
+            </label>
+            <input type="number" name="rating" min="1" max="5" class="form-control" required>
+          </div>
+
+          <!-- Comment -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">
+              <i class="fa fa-comment-dots text-secondary me-1"></i> Comment
+            </label>
+            <textarea name="comment" rows="3" class="form-control" placeholder="Write your feedback..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            <i class="fa fa-times me-1"></i> Cancel
+          </button>
+          <button type="submit" class="btn btn-outline-warning">
+            <i class="fa fa-paper-plane me-1"></i> Submit
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endfor %}
+
+<!-- Bookings Table -->
+<div class="container my-5 col-12 col-md-11">
+  <div class="card p-4">
+    <h3 class="text-center text-primary mb-4"><i class="fas fa-car text-primary shadow-sm mr-1"></i> My Bookings</h3>
+
+
+
+    {% if bookings %}
+    <div class="table-responsive">
+
+
+      {% if awaiting_contract %}
+      <div class="modal fade" id="contractModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static"
+        data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+          <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header bg-secondary text-light">
+              <h5 class="modal-title fw-bold text-primary">
+                Contract Agreement - Booking #{{ awaiting_contract.id }}
+              </h5>
+              {# لا نضع زر إغلاق نهائيًا #}
+            </div>
+
+            <div class="modal-body" id="contractBody" style="max-height:60vh; overflow-y:auto;">
+
+              <!-- نص العقد الكامل -->
+              <div class="contract p-4 bg-white">
+                <h2 class="text-center mb-4">Car Rental Agreement</h2>
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <p class="text-dark fw-bold"><strong>Contract Date:</strong>{{awaiting_contract.contract.created_at|date:"Y-m-d H:i" }}</p>
+                  <img src="{% static 'img/qr-code.png' %}" alt="qrCodeImg" class="float-end"
+                    style="height:150px; width:150px;">
+                </div>
+
+                <div class="section-title fw-bold border-bottom pb-1 mt-4 text-dark">Parties</div>
+                <p><strong>Lessor (Owner):</strong> {{ awaiting_contract.car.owner.username }} /
+                  {{awaiting_contract.contract.owner_company }}</p>
+                <p><strong>Lessee (Renter):</strong> {{ awaiting_contract.user.username }} -
+                  {{awaiting_contract.user.phone }}</p>
+
+                <div class="section-title fw-bold border-bottom pb-1 mt-4 text-dark">Car Details</div>
+                <ul>
+                  <li><strong>Name:</strong> {{ awaiting_contract.car.name }}</li>
+                  <li><strong>Transmission:</strong> {{ awaiting_contract.car.get_transmission_display }}</li>
+                  <li><strong>Year:</strong> {{ awaiting_contract.car.year }}</li>
+                </ul>
+
+                <div class="section-title fw-bold border-bottom pb-1 mt-4 text-dark">Rental Details</div>
+                <ul>
+                  <li><strong>Daily Rate:</strong> {{ awaiting_contract.car.price }} USD</li>
+                  <li><strong>Number of Days:</strong> {{ awaiting_contract.rental_days }}</li>
+                  <li><strong>Total Price:</strong> {{ awaiting_contract.contract.total_price }} USD</li>
+                </ul>
+
+                <div class="section-title fw-bold border-bottom pb-1 mt-4 text-dark">General Terms & Conditions</div>
+                <ul class="fa-ul mt-2">
+                  <li><span class="fa-li"><i class="fa-solid fa-circle-dot text-primary"></i></span>
+                    The Lessee agrees to pay the rental fees in full and on time as specified in this agreement.
+                  </li>
+                  <li><span class="fa-li"><i class="fa-solid fa-circle-dot text-primary"></i></span>
+                    The Lessee shall use the vehicle responsibly and in compliance with traffic laws and regulations.
+                  </li>
+                  <li><span class="fa-li"><i class="fa-solid fa-circle-dot text-primary"></i></span>
+                    The Lessee is responsible for any damages caused to the vehicle during the rental period, except for
+                    normal wear and tear.
+                  </li>
+                  <li><span class="fa-li"><i class="fa-solid fa-circle-dot text-primary"></i></span>
+                    The Lessee agrees to return the vehicle on the agreed date, in the same condition it was received,
+                    with all documents and accessories.
+                  </li>
+                  <li><span class="fa-li"><i class="fa-solid fa-circle-dot text-primary"></i></span>
+                    Insurance Coverage: The Lessee is responsible for any additional insurance beyond what is specified
+                    in this agreement.
+                  </li>
+                </ul>
+
+                {% if awaiting_contract.contract.notes %}
+                <div class="section-title fw-bold border-bottom pb-1 mt-4 mb-3">Additional Notes</div>
+                <p>{{ awaiting_contract.contract.notes }}</p>
+                {% endif %}
+
+                <div class="row mt-4">
+                  <div class="d-flex justify-content-between align-items-start no-wrap"
+                    style="page-break-inside: avoid; width:100%;">
+                    <!-- Owner -->
+                    <div class="text-center flex-grow-1" style="width: 30%;">
+                      <p class="text-dark">Signature of Lessor (Owner)</p>
+                      <span class="text-danger fw-bold position-relative" style="z-index:2;">
+                        {{ awaiting_contract.car.owner.username }}
+                      </span>
+                      <div class="signature-box border-top mt-3 position-relative" style="height:100px;">
+                        <img src="{% static 'img/ownerStamp.png' %}" alt="Owner Stamp"
+                          class="position-absolute top-50 start-50 translate-middle opacity-50"
+                          style="max-height:90px; z-index:1;">
+                      </div>
+                    </div>
+
+                    <!-- Renter -->
+                    <div class="text-center flex-grow-1" style="width: 30%;">
+                      <p class="text-dark">Signature of Lessee (Renter)</p>
+                      <span class="text-danger fw-bold position-relative" style="z-index:2;">
+                        {{ awaiting_contract.user.username }}
+                      </span>
+                      <div class="signature-box border-top mt-3 position-relative" style="height:100px;">
+                        <img src="{% static 'img/renterStamp.png' %}" alt="Renter Stamp"
+                          class="position-absolute top-50 start-50 translate-middle opacity-50"
+                          style="max-height:90px; z-index:1;">
+                      </div>
+                    </div>
+
+                    <!-- Company Seal -->
+                    <div class="text-center flex-grow-1" style="width: 30%;">
+                      <p class="text-dark">Company Approved</p>
+                      <span class="text-danger fw-bold position-relative" style="z-index:2;">Royal Car Rental</span>
+                      <div class="signature-box border-top mt-3 position-relative d-inline-block"
+                        style="height:120px; width:100%;">
+                        <img src="{% static 'img/royalStamp.png' %}" alt="Company Stamp"
+                          class="position-absolute top-50 start-50 translate-middle opacity-75"
+                          style="max-height:90px; z-index:1;">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="text-end mb-3 d-flex justify-content-end mt-4">
+                  <button onclick="window.print()" class="btn btn-outline-secondary btn-sm mr-2">
+                    <i class="fa fa-print me-1"></i> Print Contract
+                  </button>
+                  <button id="downloadPDF" class="btn btn-outline-primary btn-sm">
+                    <i class="fa fa-file-pdf me-1"></i> Download PDF
+                  </button>
+                </div>
+              </div>
+              <!-- نهاية نص العقد -->
+              <div class="modal-footer d-flex align-items-center justify-content-between">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="agreeCheck" disabled>
+                  <label class="form-check-label" for="agreeCheck">
+                    I confirm I have read the contract fully and agree to all terms.
+                  </label>
+                </div>
+                <div class="d-flex gap-2">
+                  <form method="post" action="{% url 'approve_contract' awaiting_contract.id %}">
+                    {% csrf_token %}
+                    <button type="submit" id="approveBtn" class="btn btn-sm btn-outline-success mr-2" disabled>
+                      Approve and continue
+                    </button>
+                  </form>
+                  <form method="post" action="{% url 'decline_contract' awaiting_contract.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                      Decline
+                    </button>
+                  </form>
+                </div>
+              </div>
+
+            </div>
+
+
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <table class="table table-hover table-sm align-middle text-center">
+        <thead class="table-light">
+          <tr>
+            <th>#</th>
+            <th>Car</th>
+            <th>Location</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Price</th>
+            <th>Status</th>
+            <th>Payment</th>
+            <th>Agreement</th>
+            <th>Review</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for booking in bookings %}
+          <tr class="align-middle">
+            <td>{{ forloop.counter }}</td>
+            <td>{{ booking.car.name }}</td>
+            <td style="font-size: 12px;" class="text-dark">{{ booking.trip_location }}</td>
+            <td style="font-size: 12px;">{{ booking.pickup_date }}</td>
+            <td style="font-size: 12px;">{{ booking.pickup_time }}</td>
+            <td style="font-size: 12px;">{{ total_paid }} $</td>
+            <!-- الحالة -->
+            <td>
+              {% if booking.status == "pending" %}
+              <span class="badge bg-warning text-white" style="font-size: 11px;"><i
+                  class="fa-solid text-muted fa-hourglass-half me-1"></i> Pending</span>
+              {% elif booking.status == "approved" %}
+              <span class="badge bg-success text-light" style="font-size: 11px;"><i class="bi bi-check-circle me-1"></i>
+                Approved</span>
+              {% elif booking.status == "rejected" %}
+              <span class="badge bg-danger text-light" style="font-size: 11px;"><i class="bi bi-x-circle me-1"></i>
+                Rejected</span>
+              {% elif booking.status == "paid" %}
+              <span class="badge bg-dark text-light" style="font-size: 11px;"><i class="bi bi-credit-card me-1"></i>
+                Paid</span>
+              {% else %}
+              <span class="badge bg-secondary text-light" style="font-size: 11px;">{{ booking.status }}</span>
+              {% endif %}
+            </td>
+
+            <!-- الدفع -->
+            <td>
+              {% if booking.status == "approved" %}
+              <a href="{% url 'pay_booking' booking.id %}" class="btn btn-sm btn-success" style="font-size: 11.5px;">
+                <i class="bi bi-credit-card me-1 "></i> Pay
+              </a>
+              {% elif booking.status == "paid" %}
+              <span class="text-success small fw-bold" style="font-size: 11px;">
+                <i class="bi bi-check-circle-fill me-1"></i> Paid
+              </span>
+              {% elif booking.status == "pending" %}
+              <span class="text-warning small fw-bold">
+                <i class="fa-solid fa-hourglass-half me-1"></i> Waiting
+              </span>
+              {% elif booking.status == "rejected" %}
+              <span class="text-danger small fw-bold">
+                <i class="bi bi-x-circle-fill me-1"></i> Rejected
+              </span>
+              {% else %}
+              <span class="text-muted small">—</span>
+              {% endif %}
+            </td>
+
+            <!-- العقد -->
+            <td>
+              {% if booking.contract and booking.status != "rejected" and booking.status != "canceled" %}
+              <a href="{% url 'contract_detail' booking.id %}" class="btn btn-sm btn-outline-dark"
+                style="font-size: 11px;">
+                <i class="bi bi-file-earmark-text me-1"></i> View
+              </a>
+              {% else %}
+              <span class="text-muted small bg-light" style="font-size: 12px;">No Agreement</span>
+              {% endif %}
+            </td>
+
+
+            <!-- التقييم -->
+            <td>
+              {% if booking.status == "paid" and not booking.review %}
+              <button class="btn btn-sm btn-outline-primary " style="font-size: 11px;" data-bs-toggle="modal"
+                data-bs-target="#reviewModal{{ booking.id }}">
+                <i class="bi bi-star me-1"></i> Review
+              </button>
+              {% elif booking.review %}
+              <span class="text-success small fw-bold">
+                <i class="bi bi-check-circle-fill me-1"></i> Reviewed
+              </span>
+              {% else %}
+              <span class="text-muted small bg-light" style="font-size: 12px;">Complete Booking</span>
+              {% endif %}
+            </td>
+
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info text-center">
+      You don't have any bookings yet.
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{% if awaiting_contract %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    var contractModal = new bootstrap.Modal(document.getElementById('contractModal'), { backdrop: 'static', keyboard: false });
+    contractModal.show();
+
+    var bodyEl = document.getElementById('contractBody');
+    var agreeCheck = document.getElementById('agreeCheck');
+    var approveBtn = document.getElementById('approveBtn');
+
+    function enableAgreeIfScrolled() {
+      var scrolledToBottom = Math.ceil(bodyEl.scrollTop + bodyEl.clientHeight) >= bodyEl.scrollHeight;
+      if (scrolledToBottom) {
+        agreeCheck.disabled = false;
+      }
+    }
+
+    bodyEl.addEventListener('scroll', enableAgreeIfScrolled);
+    // فحص أولي لو المحتوى قصير
+    enableAgreeIfScrolled();
+
+    agreeCheck.addEventListener('change', function () {
+      approveBtn.disabled = !agreeCheck.checked;
+    });
+  });
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<script>
+  document.getElementById("downloadPDF").addEventListener("click", () => {
+    const element = document.querySelector(".contract");
+    const opt = {
+      margin: 0.5,
+      filename: 'Car-Rental-Agreement.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] } // أهم شيء
+    };
+    html2pdf().set(opt).from(element).save();
+  });
+</script>
+{% endif %}
+
+{% endblock %}
