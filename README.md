@@ -29,6 +29,6 @@ The system allows **admins** to manage car listings and user accounts, while **r
 ## ⚙️ Setup Instructions
 
 ### 1️⃣ Clone the repository
-``` bash
+```bash
 git clone https://github.com/AmroBatish/Royal-Cars-Project.git
 cd royal-cars-project
